@@ -1,0 +1,1489 @@
+#:kivy 1.0
+
+### device management 
+#:import ListHelioStatsIp device_mange.listHelioStatsIp.ListHelioStatsIp
+#:import ListCameraIp device_mange.listCameraIp.ListCameraIp
+#:import Description device_mange.description.Description
+#:import UploadConnectionPage device_mange.uploadConnectionPage.UploadConnectionPage
+
+### Camera control
+#:import SetAutoScreen camera_control.auto_screen_widget.SetAutoScreen
+#:import ManualScreen camera_control.manual_screen_widget.ManualScreen
+#:import CameraSettingWidget camera_control.camera_setting_widget
+### command 
+#:import ControllerManual command.manual_command.ControllerManual
+#:import ControllerAuto command.auto_command.ControllerAuto
+
+### Path control
+#:import PathControlWidget path_control.path_control_widget.PathControlWidget
+
+### animation 
+#:import BlinkSpot animation.blinking.BlinkSpot
+
+
+MainFrameWidget: 
+
+<MainFrameWidget>:
+    LabHeaderWidget:
+
+<CameraSettingWidget>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: .1
+            Label:
+                id: camera_setting_status
+                text: "Camera status:Off"
+                canvas.before:
+                    Color: 
+                        rgba: (.2,.2,.2,1)
+                    Rectangle: 
+                        pos:self.pos
+                        size:self.size
+        GridLayout:
+            cols: 3
+            size_hint_y: .1
+            spacing: 5
+            padding: 5
+            Button:
+                text: 'Stop Camera'
+                background_color: (.4, .4, .4, 1)
+                on_press: root.call_close_camera()
+            Button:
+                text: 'Start Camera'
+                background_color: (.4, .4, .4, 1)
+                on_press: root.call_open_camera()
+
+        GridLayout:
+            cols: 2
+            GridLayout:
+                rows: 1
+                Image:
+                    id: camera_setting
+                    source: 'images/sample_image_2.png'  # Initial image
+                    allow_stretch: True
+                    keep_ratio: True
+                    on_touch_down: None
+                    on_touch_move: None
+                    on_touch_up: None
+            GridLayout:
+                rows: 2
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Top camera'
+                        size_hint_y: .1
+                    Image:
+                        id: camera_setting_top
+                        source: 'images/sample_image_2.png'  # Initial image
+                        allow_stretch: True
+                        keep_ratio: True
+                        on_touch_down: None
+                        on_touch_move: None
+                        on_touch_up: None
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        size_hint_y: .1
+                        text: 'Bottom camera'
+                    Image:
+                        id: camera_setting_bottom
+                        source: 'images/sample_image_2.png'  # Initial image
+                        allow_stretch: True
+                        keep_ratio: True
+                        on_touch_down: None
+                        on_touch_move: None
+                        on_touch_up: None
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: .1
+            GridLayout:
+                cols: 2
+                # Button:
+                #     id: camera_setting_save_crop
+                #     text: 'Save crop'
+                Button:
+                    id: camera_reset_crop
+                    text: 'Reset crop'
+                    on_press: root.haddle_reset_all_camera_setting()
+
+
+<PathControlWidget>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: .05
+            canvas.before:
+                Color:
+                    rgba: .35, .35, .35, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                text: 'Path control menu'
+            
+        GridLayout:
+            cols: 2
+            GridLayout:
+                rows: 2
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: .6
+                        canvas:
+                            Color:
+                                rgba: 1, 1, 1, 1
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        GridLayout:
+                            rows: 2
+                            Image:
+                                id: path_cam_image
+                                source: 'images/sample_image_2.png'  # Initial image
+                                allow_stretch: True
+                                keep_ratio: True
+                                on_touch_down: None
+                                on_touch_move: None
+                                on_touch_up: None
+                            Image:
+                                id:  path_cam_image_top
+                                source: 'images/sample_image_2.png'  # Initial image
+                                allow_stretch: True
+                                keep_ratio: True
+                                on_touch_down: None
+                                on_touch_move: None
+                                on_touch_up: None
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: .05
+                        GridLayout:
+                            cols:6
+                            Button:
+                                id: path_start_camera
+                                text: "Camera on"
+                                on_press: root.haddle_control_cam()
+                            GridLayout:
+                                rows: 1
+                                Spinner:
+                                    id: spinner_camera_selection
+                                    text: 'Select camera'
+                                    pos_hint: {'center_x': 0.5}
+                                    on_text: root.select_drop_down_menu_camera_path(self, self.text)
+                            GridLayout:
+                                rows: 1
+                                Spinner:
+                                    id: spinner_helio_selection
+                                    text: 'Select helio'
+                                    pos_hint: {'center_x': 0.5}
+                                    on_text: root.select_drop_down_menu_helio_path(self, self.text)
+                                    
+                            Button:
+                                id: start_run_path
+                                text: "Start path"
+                                on_press: root.haddle_start_run_path()
+                            Button:
+                                id: stop_run_path
+                                text: "Stop path"
+                                on_press: root.haddle_stop_run_path()
+                            Button:
+                                id: conf_speed
+                                text: "config"
+                                on_press: root.haddle_config_path()
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: .3
+                GridLayout:
+                    rows:3
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: .1
+                        GridLayout:
+                            cols: 2
+                            canvas.before:
+                                Color:
+                                    rgba: .2, .2, .2, 1
+                                Rectangle:
+                                    pos: self.pos
+                                    size: self.size
+                            Label:
+                                text:"Selection path: "
+                            Button:
+                                text: "Open file"
+                                on_press: root.show_popup_path_control()
+                    BoxLayout:
+                        orientation: 'vertical'
+                        ScrollView:
+                            # do_scroll_y: True
+                            BoxLayout:
+                                orientation: 'vertical'
+                                # size_hint_y: None
+                                # height: self.minimum_height
+                                GridLayout:
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    cols:2
+                                    Label:
+                                        text: 'id'
+                                    Label:
+                                        id: val_id
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'currentX'
+                                    Label:
+                                        id: val_currentX
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'currentY'
+                                    Label:
+                                        id: val_currentY
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'err_posx'
+                                    Label:
+                                        id: val_err_posx
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'err_posy'
+                                    Label:
+                                        id: val_err_posy
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'x'
+                                    Label:
+                                        id: val_x
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'y'
+                                    Label:
+                                        id: val_y
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'x1'
+                                    Label:
+                                        id: val_x1
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'y1'
+                                    Label:
+                                        id: val_y1
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'ls1'
+                                    Label:
+                                        id: val_ls1
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'st_path'
+                                    Label:
+                                        id: val_st_path
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'move_comp'
+                                    Label:
+                                        id: val_move_comp
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'elevation'
+                                    Label:
+                                        id: val_elevation
+                                        text:'Null'
+                                GridLayout:
+                                    cols:2
+                                    # height: self.minimum_height
+                                    # size_hint_y: None
+                                    Label:
+                                        text: 'azimuth'
+                                    Label:
+                                        id: val_azimuth
+                                        text:'Null'
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: 0.05
+                        Button:
+                            id: get_data_helio
+                            text: "Start get data"
+                            on_press: root.haddle_btn_get_data()
+
+<ControllerManual>:
+    orientation: 'vertical'
+    GridLayout:
+        cols: 3
+        spacing: 5
+        GridLayout:
+            rows: 3
+            GridLayout:
+                cols: 3
+                Button:
+                    # background_normal: "./images/t-l.png"
+                    text:"Upper-L"
+                    on_press: root.push_left_up()
+                Button:
+                    text: 'Upper'
+                    on_press: root.push_upper()
+                Button:
+                    text:"Upper_R"
+                    on_press: root.push_right_up()
+            GridLayout:
+                cols: 3
+                Button:
+                    text: 'left'
+                    on_press: root.push_left()
+                Button:
+                    text:"stop"
+                    on_press: root.haddle_stop()
+                Button:
+                    text:'right'
+                    on_press: root.push_right()
+            GridLayout:
+                cols: 3
+                Button:
+                    text:"Down-L"
+                    on_press: root.push_left_down()
+                Button:
+                    text: 'Down'
+                    on_press: root.push_down()
+                Button:
+                    text:"Down_R"
+                    on_press: root.push_right_down()
+        Button:
+            text: 'Capture'
+            size_hint_x: .35
+            on_press: root.update_and_submit()
+        Button:
+            text: 'Send data '
+            size_hint_x: .35
+            on_press: root.test_manual_send_payload_auto_2()
+
+
+
+<ManualScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 5
+        spacing: 5
+        
+        # Camera status label
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: .05
+            Label:
+                id: camera_status
+                text: 'Manual menu || Camera status: Off'
+                bold: True
+
+        # Camera control buttons
+        GridLayout:
+            cols: 3
+            size_hint_y: .1
+            spacing: 5
+            padding: 5
+
+            Button:
+                text: 'Stop Camera'
+                background_color: (.4, .4, .4, 1)
+                on_press: root.call_close_camera()
+
+            Button:
+                text: 'Start Camera'
+                background_color: (.4, .4, .4, 1)
+                on_press: root.call_open_camera()
+
+            Button:
+                text: "Cancel Crop"
+                background_color: (.4, .4, .4, 1)
+                on_press: root.reset_selection()
+        
+        GridLayout:
+            cols: 3
+            size_hint_y: .1
+            canvas:
+                Color:
+                    rgba: .2, .2, .2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                text: 'Light center detected'
+                bold: True
+            Label:
+                id: number_of_center_light_detected
+                text: '0'
+                bold: True
+            Label:
+                id: description_of_center_light_count
+                text: 'Description:'
+                bold: True
+
+        # Area for camera image and cropping interaction
+        GridLayout:
+            cols: 2
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: .6
+                canvas:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Image:
+                    id: manual_cam_image
+                    source: 'images/sample_image_2.png'  # Initial image
+                    allow_stretch: True
+                    keep_ratio: True
+                    on_touch_down: None
+                    on_touch_move: None
+                    on_touch_up: None
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: .6
+                canvas:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Image:
+                    id: manual_cam_image_demo
+                    source: 'images/sample_image_2.png'  # Initial image
+                    allow_stretch: True
+                    keep_ratio: True
+                    on_touch_down: None
+                    on_touch_move: None
+                    on_touch_up: None
+        
+        # Information and controls
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.1
+            GridLayout:
+                cols: 5
+                GridLayout:
+                    cols: 4
+                    size_hint_x: .5
+                    Label:
+                        text: 'Threshold V'
+                    Slider:
+                        id: slider_hsv_low_v
+                        min: 0
+                        max: 255
+                        step: 1
+                        orientation: 'horizontal'
+                        value:0
+                        on_value: root.haddle_change_hsv_threshold(self.value)
+                    Label:
+                        id: slider_hsv_low_v_label
+                        text: str(slider_hsv_low_v.value)
+                    Button:
+                        text: "Reset low_v"
+                        on_press: root.haddle_reset_default_threshold_low_v()
+
+                GridLayout:
+                    rows: 2
+                    size_hint_x: .4
+                    GridLayout:
+                        cols: 3
+                        Label:
+                            text:"Step machine"
+                        TextInput:
+                            id: set_step_machine
+                            text: "Step machine"
+                        Button:
+                            id: btn_change_step_machine
+                            text: "update"
+                            on_press: root.haddle_change_step_machine()
+                    GridLayout:
+                        cols: 3
+                        Label:
+                            text:"Speed machine"
+                        TextInput:
+                            id: set_speed_machine
+                            text: "Speed machine"
+                        Button:
+                            id: btn_change_step_machine
+                            text: "update"
+                            on_press: root.haddle_change_speed_machine()
+                Button:
+                    size_hint_x: .15
+                    text: 'Reset threshold'
+                    on_press: root.haddle_reset_default_threshold()
+                Button: 
+                    size_hint_x: .1
+                    text: 'OriginX'
+                    on_press: root.haddle_origin_x()
+                Button:
+                    size_hint_x: .1
+                    text: 'OriginY'
+                    on_press: root.haddle_origin_y()
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: .3
+            spacing: 5
+            canvas.before:
+                Color:
+                    rgba: .35, .35, .35, .35
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            # Left side: Information labels
+            GridLayout:
+                cols: 1
+                spacing: 1
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Center Target'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: manual_center_target_position
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Center Frame'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: manual_center_frame_position
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Error Center'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: manual_error_center
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Bounding Frame'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: manual_bounding_frame_position
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+                    Label:
+                        text: 'Using Crop'
+                        bold: True
+                        font_size: 14
+                    Label:
+                        id: using_crop_value_status
+                        text: "Using Crop: Off"
+                        bold: True
+                        font_size: 14
+
+            # Right side: Control buttons __recheck_perspective_transform
+            GridLayout:
+                cols: 3
+                spacing: 5
+                GridLayout:
+                    rows: 2
+                    Label:
+                        id: selected_label_camera
+                        text: "None"
+                    Spinner:
+                        id: spinner_camera
+                        text: 'Select Camera'
+                        size_hint_y: .25
+                        # size_hint: None, None
+                        # size: 550, 44
+                        pos_hint: {'center_x': 1}
+                        on_text: root.select_drop_down_menu_camera(self, self.text)
+                GridLayout:
+                    rows: 2
+                    Label:
+                        id: selected_label_helio_stats
+                        text: "None"
+                    Spinner:
+                        id: spinner_helio_stats
+                        text: 'Select helio'
+                        size_hint_y: .25
+                        # size_hint: None, None
+                        # size: 550, 44
+                        pos_hint: {'center_x': 1}
+                        on_text: root.select_drop_down_menu_helio_stats(self, self.text)
+                GridLayout:
+                    rows:1
+                    size_hint_x: .5
+                    Button:
+                        text: 'MTT'
+                        on_press: root.haddle_mll_mode()
+                # Button:
+                #     text: 'Reset Crop'
+                #     on_press: root.reset_crop_value()
+                #     background_color: (.4, .4, .4, 1)
+
+                # Button:
+                #     text: "Save Crop"
+                #     on_press: root.save_crop_value_image()
+                #     background_color: (.4, .4, .4, 1)
+
+                # Button:
+                #     text: 'Crop Mode'
+                #     on_press: root.active_crop_value()
+                #     background_color: (.4, .4, .4, 1)
+
+            ControllerManual:
+                id: controller_manual
+                camera_is_open: camera_status
+                error_center_f: manual_center_frame_position
+                error_center_t: manual_center_target_position
+                helio_stats_id_manual: selected_label_helio_stats
+                camera_url_id_manual: selected_label_camera
+                number_center_light: number_of_center_light_detected
+                test_manual_send_payload_auto: manual_bounding_frame_position
+                
+
+<SetAutoScreen>:
+    id: set_auto_screen_2
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 5
+        spacing: 5
+
+        # Camera status label
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: .05
+            Label:
+                id: auto_camera_status
+                text: 'Auto menu || Camera status: Off'
+                bold: True
+                height: self.texture_size[1]
+
+        # Camera control buttons
+        GridLayout:
+            cols: 3
+            size_hint_y: .1
+            spacing: 5
+            padding: 5
+
+            Button:
+                text: 'Stop Camera'
+                background_color: (.4, .4, .4, 1)
+                on_press: root.call_close_camera()
+
+            Button:
+                text: 'Start Camera'
+                background_color: (.4, .4, .4, 1)
+                on_press: root.call_open_camera()
+
+            Button:
+                text: "Cancel Crop"
+                background_color: (.4, .4, .4, 1)
+                on_press: root.reset_selection()
+        GridLayout:
+            cols: 3
+            size_hint_y: .1
+            canvas:
+                Color:
+                    rgba: .2, .2, .2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                text: 'Light center detected'
+                bold: True
+            Label:
+                id: number_of_center_light_detected
+                text: '0'
+                bold: True
+            
+            Label:
+                id: description_of_center_light_count
+                text: 'Description:'
+                bold: True
+
+        GridLayout:
+            rows: 1
+            size_hint_y: .05
+            Label:
+                id: logging_process_data
+                text: ""
+
+
+        GridLayout:
+            cols:2
+            # Area for camera image and cropping interaction
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: .6
+                canvas:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Image:
+                    id: auto_cam_image
+                    source: 'images/sample_image_2.png'  # Initial image
+                    allow_stretch: True
+                    keep_ratio: True
+                    on_touch_down: None
+                    on_touch_move: None
+                    on_touch_up: None
+            
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: .6
+                canvas:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Image:
+                    id: auto_cam_image_demo
+                    source: 'images/sample_image_2.png'  # Initial image
+                    allow_stretch: True
+                    keep_ratio: True
+                    on_touch_down: None
+                    on_touch_move: None
+                    on_touch_up: None
+        # Information and controls
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.1
+            GridLayout:
+                cols: 2
+                GridLayout:
+                    cols: 4
+                    Label:
+                        text: 'Threshold V'
+                    Slider:
+                        id: slider_hsv_low_v
+                        min: 0
+                        max: 255
+                        step: 1
+                        orientation: 'horizontal'
+                        value:0
+                        on_value: root.haddle_change_hsv_threshold(self.value)
+                    Label:
+                        id: slider_hsv_low_v_label
+                        text: str(slider_hsv_low_v.value)
+                    Button:
+                        size_hint_x: .42
+                        text: "Reset low_v"
+                        on_press: root.haddle_reset_default_threshold_low_v()
+                Button:
+                    size_hint_x: .1
+                    text: 'Config'
+                    on_press: root.open_config_popup_start()
+
+        GridLayout:
+            cols: 4
+            size_hint_y: .3
+            spacing: 5
+
+            # Left side: Information labels
+            GridLayout:
+                cols: 1
+                spacing: 1
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Center Target'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: auto_center_target_position
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Center Frame'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: auto_center_frame_position
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        id: error_center_auto_screen_label
+                        text: 'Error Center'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: auto_error_center
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Bounding Frame'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: auto_bounding_frame_position
+                        text: 'Null'
+                        bold: True
+                        font_size: 14
+
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: '30dp'
+
+                    Label:
+                        text: 'Using Crop'
+                        bold: True
+                        font_size: 14
+
+                    Label:
+                        id: using_crop_value_status
+                        text: "Using Crop: Off"
+                        bold: True
+                        font_size: 14
+            
+            ### helio stats and camera selectiom ###
+            GridLayout:
+                rows: 2
+                size_hint_x: .23
+                Label:
+                    id: selected_label_camera
+                    text: "None"
+                Spinner:
+                    id: spinner_camera
+                    text: 'Select Camera'
+                    size_hint_y: .25
+                    # size_hint: None, None
+                    # size: 200, 44
+                    pos_hint: {'center_x': 0.5}
+                    on_text: root.select_drop_down_menu_camera(self, self.text)
+            
+            GridLayout:
+                rows: 2
+                size_hint_x: .23
+                Label:
+                    id: selected_label_helio_stats
+                    text: "None"
+                Spinner:
+                    id: spinner_helio_stats
+                    text: 'Select helio'
+                    size_hint_y: .25
+                    # size_hint: None, None
+                    # size: 200, 44
+                    pos_hint: {'center_x': 0.5}
+                    on_text: root.select_drop_down_menu_helio_stats(self, self.text)
+            # GridLayout:
+            #     rows: 2
+            #     size_hint_x: .23
+            #     Button:
+            #         id: debug_cap
+            #         text: 'DD'
+            #         on_press: root.get_error_x_y()
+                
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_x: .75
+                ControllerAuto:
+                    id: controller_auto
+                    status_auto: auto_camera_status
+                    center_frame_auto: auto_center_frame_position
+                    center_target_auto: auto_center_target_position
+                    helio_stats_id: selected_label_helio_stats
+                    camera_url_id: selected_label_camera
+                    number_center_light: number_of_center_light_detected
+                    bounding_box_frame_data: auto_bounding_frame_position
+                    error_center_auto: auto_error_center
+                    
+
+<ControllerAuto>:
+    orientation: 'vertical'
+    size_hint_x: .5
+    GridLayout:
+        rows: 4
+        Label:
+            id: logging_process
+            text: "-"
+        Button:
+            id: label_auto_mode
+            text: 'Auto off'
+            on_press: root.control_auto_mode()
+            BlinkSpot:
+                auto_text: self.parent.text
+                size: 50, 50  
+                pos: self.parent.x + 200, self.parent.center_y - self.height / 2
+                canvas:
+                    Color:
+                        rgba: 1, 0, 0, self.opacity  # Red color with variable opacity
+                    Ellipse:
+                        pos: self.pos
+                        size: self.size
+        GridLayout:
+            id: control_origin_mtt_stop_all
+            cols: 4
+            Button:
+                id: set_mtt_id
+                text: 'MTT'
+                on_press: root.show_popup_mtt()
+            Button:
+                id: set_origin_id
+                text: 'Set origin'
+                on_press: root.handler_set_origin()
+            Button:
+                id: set_stop_id
+                text: 'Stop All'
+                on_press: root.handler_force_off_btn()
+            Button: 
+                id: set_move_all_path
+                text: 'Move Center'
+                on_press: root.move_all_by_using_path()
+        GridLayout:
+            cols: 5
+            Button:
+                id: label_loop_mode
+                text: 'Loop off'
+                on_press: root.active_loop_mode()
+            Button:
+                id: label_loop_mode
+                text: 'Use date now'
+                on_press: root.active_datenow()
+            Button:
+                id: clear_origin
+                text: 'Clear origin'
+                on_press: root.haddle_clear_origin()
+            Button:
+                id: add_origin
+                text: 'Add origin'
+                on_press: root.haddle_add_origin()
+            Button:
+                id: force_set_origin
+                text: 'Force origin off'
+                on_press: root.button_force_origin()
+            # Button:
+            #     id: debug_cap
+            #     text: 'DD'
+            #     on_press: root.button_debug_insertDB()
+
+
+<ListHelioStatsIp>:
+    viewclass: 'Label'
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<ListCameraIp>:
+    viewclass: 'Label'
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<Description>:
+    BoxLayout:
+        orientation: 'vertical'
+        ScrollView:
+            do_scroll_y: True
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_timestamp
+                        text: 'Timestamp'
+                    Label:
+                        id: d_timestamp
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_currentX
+                        text: 'currentX'
+                    Label:
+                        id: d_currentX
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_currentY
+                        text: 'currentY'
+                    Label:
+                        id: d_currentY
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_err_posx
+                        text: 'err_posx'
+                    Label:
+                        id: d_err_posx
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_err_posy
+                        text: 'err_posy'
+                    Label:
+                        id: d_err_posy
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_x
+                        text: 'x'
+                    Label:
+                        id: d_x
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_y
+                        text: 'y'
+                    Label:
+                        id: d_y
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_x1
+                        text: 'x1'
+                    Label:
+                        id: d_x1
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_y1
+                        text: 'y1'
+                    Label:
+                        id: d_y1
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_ls1
+                        text: 'ls1'
+                    Label:
+                        id: d_ls1
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_st_path
+                        text: 'st_path'
+                    Label:
+                        id: d_st_path
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_move_comp
+                        text: 'move_comp'
+                    Label:
+                        id: d_move_comp
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id: l_elevation
+                        text: 'elevation'
+                    Label:
+                        id: d_elevation
+                        text: 'Null'
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    Label:
+                        id:l_azimuth
+                        text: 'azimuth'
+                    Label:
+                        id: d_azimuth
+                        text: 'Null'
+    
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .1
+        BoxLayout:
+            canvas.before:
+                Color: 
+                    rgba: (.3,.3,.3,1)
+                Rectangle: 
+                    pos:self.pos
+                    size:self.size
+            Label:
+                id: status_auto_get
+                text: "Auto get data off"
+            
+        GridLayout:
+            cols: 4
+            BoxLayout:
+                orientation: 'vertical'
+                Button:
+                    id: auto_get_data
+                    text: 'Auto get data'
+                    on_press:  root.start_fetch_loop()
+            BoxLayout:
+                orientation: 'vertical'
+                Button:
+                    id: manual_get_data
+                    text: 'Manual get data'
+                    on_press:  root.haddle_fetch_once()
+            BoxLayout:
+                orientation: 'vertical'
+                Button:
+                    id: update_rtc_id
+                    text: "Update rtc"
+                    on_press: root.haddle_update_rtc()
+            Spinner:
+                id: spinner_helio_stats_desc
+                text: 'Select helio'
+                size: 200, 44
+                pos_hint: {'center_x': 0.5}
+                on_text: root.haddle_helio_stats_selection(self, self.text)
+        
+         
+<UploadConnectionPage>:
+    size_hint: None, None
+    size: 1000, 700     # 🔧 ขนาดกล่อง
+    pos_hint: {"center_x": 0.5, "center_y": 0.6}  # 🎯 ตำแหน่งกลางจอ
+    BoxLayout:
+        orientation: 'vertical'
+        # size_hint_y: .9
+        size_hint_y: None
+        height: '300dp'  # 🔧 ปรับให้พอดี
+        width: '150dp'  
+        # GridLayout:
+        #     cols: 1
+            # BoxLayout:
+            #     orientation: 'vertical'
+            #     size_hint_y: None
+            #     height: '300dp'  # 🔧 ปรับให้พอดี
+            #     Label:
+            #         text: 'Upload File'
+            #         font_size: '20sp'
+            #         size_hint_y: None
+            #         height: '40dp'
+            #     BoxLayout:
+            #         orientation: 'vertical'
+            #         Label:
+            #             text: 'Syntax for adding Helio stats and camera ip'
+            #         Image:
+            #             source: './images/connection_array.png'
+            #     BoxLayout:
+            #         orientation: 'vertical'
+            #         padding: 10
+            #         spacing: 10
+            #         Button:
+            #             text: 'Select JSON File'
+            #             size_hint_y: None
+            #             height: '50dp'
+            #             on_release: root.open_file_dialog()
+            #         ScrollView:
+            #             GridLayout:
+            #                 id: json_display
+            #                 cols: 1
+            #                 size_hint_y: None
+            #                 height: self.minimum_height
+            #                 padding: 10
+            #                 spacing: 10
+        BoxLayout:
+            orientation: 'vertical'
+                
+            Label:
+                text: 'Predict'
+                font_size: '20sp'
+                size_hint_y: None
+                height: '40dp'
+            GridLayout:
+                rows: 5
+                GridLayout:
+                    cols: 4
+                    Label:
+                        text: 'Time start (hours)'
+                        height: '30dp'
+                        size_hint_y: None
+                    TextInput:
+                        id: time_start
+                        height: '30dp'
+                        size_hint_y: None
+                        input_filter: 'int'
+                        text: '8'
+                        on_text: root.enforce_range(self, 0, 24)
+                    Label:
+                        text: 'Time end (hours)'
+                        height: '30dp'
+                        size_hint_y: None
+                        input_filter: 'int'
+                    TextInput:
+                        id: time_end
+                        height: '30dp'
+                        size_hint_y: None
+                        input_filter: 'int'
+                        text: '17'
+                        on_text: root.enforce_range(self, 0, 24)
+                GridLayout:
+                        # size_hint_y: .1
+                    cols: 2
+                    Label:
+                        text: 'Heliostats: '
+                    TextInput:
+                        # text: 'Heliostats: '
+                        id: heliostats_id
+                GridLayout:
+                    # size_hint_y: .1
+                    cols: 2
+                    Label:
+                        text: 'Day: '
+                    TextInput:
+                        # text: 'Day: '
+                        id: is_day_predict
+                        input_filter: 'int'
+                        on_text: root.enforce_range(self, 0, 31)
+                GridLayout:
+                    # size_hint_y: .1
+                    cols: 2
+                    Label:
+                        text: 'Month: '
+                    TextInput:
+                        # text: 'Month: '
+                        id: is_month_predict
+                        input_filter: 'int'
+                        on_text: root.enforce_range(self, 0, 12)
+                GridLayout:
+                    # size_hint_y: .1
+                    cols: 2
+                    Label:
+                        text: 'Year: '
+                    TextInput:
+                        # text: 'Year: '
+                        id: is_year_predict
+                        input_filter: 'int'
+                        on_text: root.enforce_range(self, 0, 3000)
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 10
+                spacing: 10
+                height: 30
+                size_hint_y: .2
+                Button:
+                    text: 'Generate File'
+                    on_press: root.generate_data()
+<LabHeaderWidget>:
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint_y: None
+        height: 100
+        canvas.before:
+            Color: 
+                rgba: (.3,.3,.3,1)
+            Rectangle: 
+                pos:self.pos
+                size:self.size
+        Button:
+            text: 'Camera setting'
+            on_press: root.change_screen('camera_setting', 'camera_setting')
+
+        Button:
+            text: "Manual"
+            on_press: root.change_screen('manual', 'manual')
+            # on_press: root.ids.screen_manager.current = 'manual'
+        Button:
+            text: "Auto mode"
+            on_press: root.change_screen('auto', 'auto_mode')
+            # on_press: root.ids.screen_manager.current = 'auto'
+        Button:
+            text: "Path control"
+            on_press: root.change_screen('path_control', 'path_control')
+            # on_press: root.ids.screen_manager.current = 'path_control'
+        Button:
+            text: "Description"
+            on_press: root.change_screen('description', 'description')
+            # on_press: root.ids.screen_manager.current = 'description'
+        Button:
+            text: "Forecasting"
+            on_press: root.change_screen('upload_connection', 'connection_upload')
+            # on_press: root.ids.screen_manager.current = 'upload_connection'
+
+    ScreenManager:
+        id: screen_manager
+        CameraSettingWidget:
+            name: 'camera_setting'
+        ManualScreen:
+            name: 'manual'
+        SetAutoScreen:
+            id: set_auto_screen
+            name: 'auto'
+        PathControlWidget:
+            name: 'path_control'
+        Description:
+            name: 'description'
+        UploadConnectionPage:
+            name: 'upload_connection'
+
