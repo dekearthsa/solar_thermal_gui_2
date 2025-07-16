@@ -10,6 +10,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.core.image import Image as CoreImage
 import requests
 from datetime import datetime
+import os
 
 class Monitoring(Screen):
     def __init__(self, **kwargs):
@@ -32,6 +33,9 @@ class Monitoring(Screen):
         self.menu_now="auto_mode"
         self.camera_perspective = ""
         self.helio_get_data = ""
+        self.list_data_helio = []
+        self.json_path_data = []
+        self.is_path_found = False
 
 
     def apply_crop_methods(self, frame):
@@ -215,7 +219,7 @@ class Monitoring(Screen):
         with open('./data/setting/connection.json', 'r') as file:
             data = json.load(file)
         self.list_data_helio = data['helio_stats_ip']
-        self.list_data_cam = data['camera_url']
+        # self.list_data_cam = data['camera_url']
         self.ids.spinner_helio_selection.values = [item['id'] for item in data.get('helio_stats_ip', [])]
 
     def select_drop_down_menu_helio_path(self, spinner, text):
@@ -255,7 +259,7 @@ class Monitoring(Screen):
         except:
             pass
 
-    def fetch_data_helio_stats(self, instance):
+    def fetch_data_helio_stats(self, dt):
         # print("loop on")
         if self.helio_get_data == "":
             self.show_popup("Alert", "Please select heliostats.")
@@ -287,27 +291,65 @@ class Monitoring(Screen):
                 self.show_popup("Alert", "connection error close get data.")
                 self.haddle_off_get_data()
 
-    def haddle_monitor(self, status_moni):
+    def parse_text_file_to_json(file_path):
+        data_list = []
+        with open(file_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('*'):
+                    json_str = line[1:]  
+                    data = json.loads(json_str)
+                    data_list.append(data)
+        return data_list
+
+    def haddle_monitor(self, status_moni, day, month):
+        
         if self.helio_get_data == "":
             self.show_popup("Alert", "Please select heliostats.")
         elif self.helio_get_data == "all":
             self.show_popup("Alert", "Cannot select all heliostats.")
+        elif day == "" and month == "":
+            self.show_popup("Alert", "To start monitor select date that path will use.")
         else: 
             if status_moni == "Start monitoring":
-                self.ids.monitoring_helostats_data.text = "Off monitoring"
+                directory = './model/forecasting'
+                prefix = f"data_{status_moni}_{day}{month}"
+                for filename in os.listdir(directory):
+                    if filename.startswith(prefix) and filename.endswith('.txt'):
+                        file_path = os.path.join(directory, filename)
+                        print(f"Found file: {file_path}")
+                        with open(file_path, 'r') as f:
+                            content = f.read()
+                        self.json_path_data = self.parse_text_file_to_json(content) 
+                        self.is_path_found = True
+                if self.is_path_found == True:
+                    self.ids.monitoring_helostats_data.text = "Off monitoring"
+                    self.start_monitor_interval()
+                else:
+                    self.ids.monitoring_helostats_data.text = f"Path not found check in ./model/forecasting/{prefix}"
             else:
                 self.ids.monitoring_helostats_data.text = "Start monitoring"
+                self.haddle_off_monitor()
 
 
     def haddle_off_monitor(self):
-        pass
+        Clock.unschedule(self.monitor_interval)
 
-    def start_get_path_data(self):
-        pass
+    def start_monitor_interval(self):
+        Clock.schedule_interval(self.monitor_interval, 10)
 
-    def monitor_interval(self):
+    def monitor_interval(self, dt):
         dt = datetime.now()
+        time_for_show = dt.strftime('%H:%M:%S')
         time_str = dt.strftime('%H:%M')
+        for item in self.json_path_data:
+            t = datetime.strptime(item['timestamp'], '%H:%M:%S')
+            time_str_path = t.strftime('%H:%M')
+            if time_str == time_str_path:
+                self.ids.val_status_path_found.text = "Found path"
+                self.ids.val_is_timing_x.text = time_for_show
+                self.ids.val_predict_X.text = str(item['x'])
+                self.ids.val_predict_y.text = str(item['y'])
 
     def haddle_off_get_data(self):
         pass
