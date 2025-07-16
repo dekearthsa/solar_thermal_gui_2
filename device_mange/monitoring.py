@@ -2,45 +2,20 @@ import json
 import cv2
 import numpy as np
 from kivy.clock import Clock
-# from kivy.graphics import Color, Ellipse, Line, Rectangle
+
 from kivy.graphics.texture import Texture
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.core.image import Image as CoreImage
-# from kivy.uix.boxlayout import BoxLayout
-# from kivy.uix.button import Button
-# from kivy.uix.textinput import TextInput
-# from kivy.uix.gridlayout import GridLayout
-# from camera_control.handle_thread_cpu import CameraThread
-# from functools import partial
+import requests
+from datetime import datetime
 
 class Monitoring(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        ### mqtt setup ###
         self.capture = None
-        self.selected_points = []      # List to store selected points as (x, y) in image coordinates
-        self.polygon_lines = None      # Line instruction for the polygon
-        self.point_markers = []        # Ellipse instructions for points
-        self.crop_area = None          # To store the crop area coordinates (if using rectangle)
-
-        self.perspective_transform = [[0,0,0], [0,0,0],[0,0,0]]
-        self.max_width = 0
-        self.max_height = 0
-        
-        self.reset_perspective_transform = [[0,0,0], [0,0,0],[0,0,0]]
-        self.reset_max_width = 0
-        self.reset_max_height = 0
-
-        # Clock.schedule_once(lambda dt: self.fetch_status()) # Fetch status is_use_contour from json setting file
-        self.dragging = False          # Initialize dragging
-        self.rect = None               # Initialize rectangle
-        self.status_text = 'Ready'     # Initialize status text
         Clock.schedule_once(lambda dt: self.fetch_all_helio_cam())
-        # Clock.schedule_once(lambda dt: self.fetch_helio_stats_data())
-        # Clock.schedule_once(lambda dt: self.haddle_fetch_threshold_data())
-        # Clock.schedule_interval(lambda dt: self.fetch_storage_endpoint(),2)
         
 
         #### IN DEBUG MODE CHANGE THRES HERE ####
@@ -52,11 +27,11 @@ class Monitoring(Screen):
         self.static_high_v = 255
         self.static_blur_kernel = (55,55) 
         self.static_min_area = 50000
-        self.static_max_area = 130000 
         self.camera_connection = ""
         self.helio_stats_connection = ""
         self.menu_now="auto_mode"
         self.camera_perspective = ""
+        self.helio_get_data = ""
 
 
     def apply_crop_methods(self, frame):
@@ -80,54 +55,6 @@ class Monitoring(Screen):
 
             return warped_top, max_width_top, max_height_top
         
-    # def fetch_status(self):
-    #     ###Fetch settings from JSON and update UI accordingly.###
-    #     try:
-    #         with open('./data/setting/setting.json', 'r') as file:
-    #             setting_data = json.load(file)
-    #     except Exception as e:
-    #         self.show_popup("Error", f"Failed to load settings: {e}")
-    #         return
-
-        # # Update the status label based on 'is_use_contour'
-        # if not setting_data.get('is_use_contour', False):
-        #     self.ids.using_crop_value_status.text = "Using Crop: Off"
-        # else:
-        #     self.ids.using_crop_value_status.text = "Using Crop: On"
- 
-    def remove_draw_point_marker(self):
-        # Clear point markers
-        img_widget = self.ids.auto_cam_image
-        for marker in self.point_markers:
-            img_widget.canvas.after.remove(marker)
-        self.point_markers = []
-
-        # Remove polygon lines
-        if self.polygon_lines:
-            img_widget.canvas.after.remove(self.polygon_lines)
-            self.polygon_lines = None
-
-    def reset_selection(self):
-        ###Reset the selected points and clear drawings.###
-        self.selected_points = []
-        self.status_text = 'Selection reset. Select points by clicking on the image.'
-
-        # Clear point markers
-        img_widget = self.ids.auto_cam_image
-        for marker in self.point_markers:
-            img_widget.canvas.after.remove(marker)
-        self.point_markers = []
-
-        # Remove polygon lines
-        if self.polygon_lines:
-            img_widget.canvas.after.remove(self.polygon_lines)
-            self.polygon_lines = None
-
-        # Clear rectangle if in rectangle mode
-        if hasattr(self, 'rect') and self.rect:
-            img_widget.canvas.after.remove(self.rect)
-            self.rect = None
-
     
     def find_bounding_boxes(self, gray_frame, blur_kernel, thresh_val, morph_kernel_size):
         blurred = cv2.GaussianBlur(gray_frame, blur_kernel, 0)
@@ -177,32 +104,23 @@ class Monitoring(Screen):
     def call_open_camera(self):
         ###Initialize video capture and start updating frames.###
         try:
-            with open('./data/setting/setting.json') as file:
-                setting_json = json.load(file)
-            if setting_json['crop_status'] == True:
-                if setting_json['is_run_path'] != 1:
-                    if self.camera_connection != "" and self.helio_stats_connection != "":
-                        if self.camera_connection != "":
-                            if not self.capture:
-                                try:
-                                    self.capture = cv2.VideoCapture(self.camera_connection, cv2.CAP_FFMPEG)
-                                    self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1) ## new setup 
+            if self.camera_connection != "" and self.helio_stats_connection != "":
+                if self.camera_connection != "":
+                    if not self.capture:
+                        try:
+                            self.capture = cv2.VideoCapture(self.camera_connection, cv2.CAP_FFMPEG)
+                            self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1) ## new setup 
 
-                                    if not self.capture.isOpened():
-                                        self.show_popup("Error", "Could not open camera.")
-                                        self.ids.auto_camera_status.text = "Error: Could not open camera"
-                                        return
-                                    # self.capture = CameraThread(0)
-                                    Clock.schedule_interval(self.update_frame, 1.0 / 30.0)  # 30 FPS
-                                    self.ids.auto_camera_status.text = "Auto menu || Camera status:On"
-                                except Exception as e:
-                                    self.show_popup("Camera error", f"{e}")
-                    else:
-                        self.show_popup("Alert", "Camera or helio stats must not empty.")
-                else:
-                    self.show_popup("Alert", "Path system is running\n Stop path system to run auto")
+                            if not self.capture.isOpened():
+                                self.show_popup("Error", "Could not open camera.")
+                                self.ids.auto_camera_status.text = "Error: Could not open camera"
+                                return
+                            Clock.schedule_interval(self.update_frame, 1.0 / 30.0)  # 30 FPS
+                            self.ids.auto_camera_status.text = "Auto menu || Camera status:On"
+                        except Exception as e:
+                            self.show_popup("Camera error", f"{e}")
             else:
-                self.show_popup("Alert", "Camera not setting.")
+                self.show_popup("Alert", "Camera or helio stats must not empty.")
         except Exception as e:
             print(e)
 
@@ -293,43 +211,6 @@ class Monitoring(Screen):
         except:
             pass
 
-    def fetch_helio_stats_data(self):
-        # with open('./data/setting/connection.json', 'r') as file:
-        #     data = json.load(file)
-        with open('./data/setting/setting.json', 'r') as setting_file:
-            setting_json = json.load(setting_file)
-        # self.ids.spinner_helio_stats.values = [item['id'] for item in data.get('helio_stats_ip', [])]
-        # self.ids.spinner_camera.values = [item['id'] for item in data.get('camera_url', [])]
-        self.camera_perspective = setting_json['storage_endpoint']['camera_ip']['id']
-
-    def select_drop_down_menu_camera(self,spinner, text):
-        # self.call_close_camera()
-        # self.show_popup("Alert", "Camera change")
-        
-        self.ids.selected_label_camera.text = f"ID: {text}"
-        self.camera_perspective = text
-        # print("text =>" , text)
-        try:
-            with open('./data/setting/connection.json', 'r') as file:
-                storage = json.load(file)
-            
-            if self.camera_connection == "":
-                for camera_name in storage['camera_url']:
-                    if text == camera_name['id']:
-                        self.camera_connection =  camera_name['url']
-
-            with open('./data/setting/setting.json', 'r') as file:
-                storage = json.load(file)
-
-            storage['storage_endpoint']['camera_ip']['ip'] = self.camera_connection
-            storage['storage_endpoint']['camera_ip']['id'] = text
-
-            with open('./data/setting/setting.json', 'w') as file:
-                json.dump(storage, file, indent=4)
-            
-        except Exception as e:
-            self.show_popup("Error", f"{e}")
-
     def fetch_all_helio_cam(self):
         with open('./data/setting/connection.json', 'r') as file:
             data = json.load(file)
@@ -343,15 +224,90 @@ class Monitoring(Screen):
                 self.helio_endpoint = "http://"+h_data['ip']+"/update-data"
                 self.helio_get_data = h_data['ip']
 
+    def haddle_change_hsv_threshold(self, value):
+        try:
+            self.static_low_v = value
+            with open('./data/setting/setting.json', 'r') as file:
+                setting_data = json.load(file)
+            setting_data['hsv_threshold']['low_v'] = int(value)
+            with open("./data/setting/setting.json", "w") as file:
+                json.dump(setting_data, file, indent=4)
+        except Exception as e:
+            self.show_popup("Error", f"Failed to upload value in setting file: {e}")
 
-    # def fetch_storage_endpoint(self):
-    #     with open('./data/setting/setting.json', 'r') as file:
-    #         setting_data = json.load(file) 
+    def haddle_reset_default_threshold_low_v(self):
+        with open('./data/setting/setting.json', 'r') as file:
+            setting_data = json.load(file)
         
-    #     self.ids.selected_label_helio_stats.text = setting_data['storage_endpoint']['helio_stats_ip']['id']
-    #     self.ids.selected_label_camera.text = setting_data['storage_endpoint']['camera_ip']['id']
-    #     self.camera_connection =  setting_data['storage_endpoint']['camera_ip']['ip']
-    #     self.helio_stats_connection = setting_data['storage_endpoint']['helio_stats_ip']['ip']
+        setting_data['hsv_threshold']['low_v'] = 180 ## default low_v
+
+        with open("./data/setting/setting.json", "w") as file:
+            json.dump(setting_data, file, indent=4)
+        
+        self.ids.slider_hsv_low_v.value = setting_data['hsv_threshold']['low_v']
+
+    def haddle_start_get_data(self):
+        Clock.schedule_interval(self.fetch_data_helio_stats, 5)
+
+    def haddle_off_get_data(self):
+        try:
+            Clock.unschedule(self.fetch_data_helio_stats)
+        except:
+            pass
+
+    def fetch_data_helio_stats(self, instance):
+        # print("loop on")
+        if self.helio_get_data == "":
+            self.show_popup("Alert", "Please select heliostats.")
+        elif self.helio_get_data == "all":
+            self.show_popup("Alert", "Cannot select all heliostats.")
+        else:
+            try:  
+                data = requests.get("http://"+self.helio_get_data+"/",timeout=3)
+                # data = requests.get("http://"+"192.168.0.106"+"/")
+                # data = requests.get(url="http://192.168.0.106/")
+                setJson = data.json()
+                # print(setJson)
+                # self.ids.val_id.text = str(setJson['id'])
+                self.ids.val_current_x.text = str(setJson['currentX'])
+                self.ids.val_current_y.text = str(setJson['currentY'])
+                # self.ids.val_err_posx.text = str(setJson['err_posx'])
+                # self.ids.val_err_posy.text = str(setJson['err_posy'])
+                self.ids.val_label_x.text= str(setJson['safety']['x'])
+                self.ids.val_label_y.text= str(setJson['safety']['y'])
+                # self.ids.val_x1.text= str(setJson['safety']['x1'])
+                # self.ids.val_y1.text= str(setJson['safety']['y1'])
+                # self.ids.val_sl_1.text= str(setJson['safety']['ls1'])
+                self.ids.val_st_path.text= str(setJson['safety']['st_path'])
+                # self.ids.val_move_comp.text= str(setJson['safety']['move_comp'])
+                self.ids.val_elevation.text= str(setJson['elevation'])
+                self.ids.val_azimuth.text= str(setJson['azimuth'])
+            except Exception as e:
+                print(f"error connection {e}")
+                self.show_popup("Alert", "connection error close get data.")
+                self.haddle_off_get_data()
+
+    def haddle_monitor(self, status_moni):
+        if self.helio_get_data == "":
+            self.show_popup("Alert", "Please select heliostats.")
+        elif self.helio_get_data == "all":
+            self.show_popup("Alert", "Cannot select all heliostats.")
+        else: 
+            if status_moni == "Start monitoring":
+                self.ids.monitoring_helostats_data.text = "Off monitoring"
+            else:
+                self.ids.monitoring_helostats_data.text = "Start monitoring"
+
+
+    def haddle_off_monitor(self):
+        pass
+
+    def start_get_path_data(self):
+        pass
+
+    def monitor_interval(self):
+        dt = datetime.now()
+        time_str = dt.strftime('%H:%M')
 
     def haddle_off_get_data(self):
         pass

@@ -1447,7 +1447,7 @@ MainFrameWidget:
             spacing: 5
             padding: 5
             GridLayout:
-                rows: 2
+                rows: 3
                 GridLayout:
                     cols: 2
                     size_hint_y: .1
@@ -1462,17 +1462,42 @@ MainFrameWidget:
                     source: 'images/sample_image_2.png'  # Initial image
                     allow_stretch: True
                     keep_ratio: True
+                GridLayout:
+                    cols: 4
+                    size_hint_y: .05
+                    Label:
+                        text: 'Threshold V'
+                    Slider:
+                        id: slider_hsv_low_v
+                        min: 0
+                        max: 255
+                        step: 1
+                        orientation: 'horizontal'
+                        value:0
+                        on_value: root.haddle_change_hsv_threshold(self.value)
+                    Label:
+                        id: slider_hsv_low_v_label
+                        text: str(slider_hsv_low_v.value)
+                    Button:
+                        text: "Reset low_v"
+                        on_press: root.haddle_reset_default_threshold_low_v()
 
             GridLayout:
                 rows: 3
                 size_hint_x: .3
                 BoxLayout:
+                    orientation: 'vertical'
                     size_hint_y: .20
                     Spinner:
                         id: spinner_helio_selection
                         text: 'Select helio'
                         pos_hint: {'center_x': 0.5}
                         on_text: root.select_drop_down_menu_helio_path(self, self.text)
+                    Button:
+                        id: monitoring_helostats_data
+                        text: "Start monitoring"
+                        on_press: root.haddle_monitor(self, self.text)
+    
                 GridLayout:
                     rows: 8
                     BoxLayout:
@@ -1514,10 +1539,10 @@ MainFrameWidget:
                     GridLayout:
                         cols: 2
                         Label:
-                            id: sl_1
-                            text: 'sl1 :'
+                            id: st_path
+                            text: 'st_path :'
                         Label:
-                            id: val_sl_1
+                            id: val_st_path
                             text: 'null'
                     GridLayout:
                         cols: 2
