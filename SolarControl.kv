@@ -5,6 +5,7 @@
 #:import ListCameraIp device_mange.listCameraIp.ListCameraIp
 #:import Description device_mange.description.Description
 #:import UploadConnectionPage device_mange.uploadConnectionPage.UploadConnectionPage
+#:import Monitoring device_mange.monitoring.Monitoring
 
 ### Camera control
 #:import SetAutoScreen camera_control.auto_screen_widget.SetAutoScreen
@@ -19,6 +20,7 @@
 
 ### animation 
 #:import BlinkSpot animation.blinking.BlinkSpot
+
 
 
 MainFrameWidget: 
@@ -1426,7 +1428,7 @@ MainFrameWidget:
                         id: is_year_predict
                         input_filter: 'int'
                         on_text: root.enforce_range(self, 0, 3000)
-            BoxLayout:
+            BoxLayout: 
                 orientation: 'vertical'
                 padding: 10
                 spacing: 10
@@ -1435,6 +1437,149 @@ MainFrameWidget:
                 Button:
                     text: 'Generate File'
                     on_press: root.generate_data()
+
+<Monitoring>:
+    orientation: 'vertical'
+    BoxLayout:
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            spacing: 5
+            padding: 5
+            GridLayout:
+                rows: 2
+                GridLayout:
+                    cols: 2
+                    size_hint_y: .1
+                    Button:
+                        text: 'Open camera'
+                        on_press: root.call_open_camera()
+                    Button:
+                        text: 'Close camera'
+                        on_press:  root.call_close_camera()
+                Image:
+                    id: monitoring_frame
+                    source: 'images/sample_image_2.png'  # Initial image
+                    allow_stretch: True
+                    keep_ratio: True
+
+            GridLayout:
+                rows: 3
+                size_hint_x: .3
+                BoxLayout:
+                    size_hint_y: .20
+                    Spinner:
+                        id: spinner_helio_selection
+                        text: 'Select helio'
+                        pos_hint: {'center_x': 0.5}
+                        on_text: root.select_drop_down_menu_helio_path(self, self.text)
+                GridLayout:
+                    rows: 8
+                    BoxLayout:
+                        orientation: 'vertical'
+                        Label:
+                            text: '---Actual---'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: current_x
+                            text: 'Currrent X:'
+                        Label:
+                            id: val_current_x
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: current_y
+                            text: 'Currrent Y:'
+                        Label:
+                            id: val_current_y
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: label_x
+                            text: 'X:'
+                        Label:
+                            id: val_label_x
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: label_y
+                            text: 'Y:'
+                        Label:
+                            id: val_label_y
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: sl_1
+                            text: 'sl1 :'
+                        Label:
+                            id: val_sl_1
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: elevation
+                            text: 'elevation:'
+                        Label:
+                            id: val_elevation
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: azimuth
+                            text: 'azimuth:'
+                        Label:
+                            id: val_azimuth
+                            text: 'null'
+
+                GridLayout:
+                    rows: 5
+                    BoxLayout:
+                        orientation: 'vertical'
+                        Label:
+                            text: '---Prediction---'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: status_path_found
+                            text: 'Status :'
+                        Label:
+                            id: val_status_path_found
+                            text: 'Not found'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: is_timing
+                            text: 'Timing :'
+                        Label
+                            id: val_current_x
+                            text: '00:00:00'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: predict_X:
+                            text: 'Predict X:'
+                        Label:
+                            id: val_predict_X
+                            text: 'null'
+                    GridLayout:
+                        cols: 2
+                        Label:
+                            id: predict_y
+                            text: 'Predict Y:'
+                        Label:
+                            id: val_predict_y
+                            text: 'null'
+                        
+                
+                        
+                
+
+
 <LabHeaderWidget>:
     orientation: 'vertical'
     BoxLayout:
@@ -1470,6 +1615,14 @@ MainFrameWidget:
             text: "Forecasting"
             on_press: root.change_screen('upload_connection', 'connection_upload')
             # on_press: root.ids.screen_manager.current = 'upload_connection'
+        Button:
+            text: "Upload Heliostats"
+            on_press: root.change_screen('upload_connection', 'connection_upload')
+            # on_press: root.ids.screen_manager.current = 'upload_connection'
+        Button:
+            text: "Monitoring"
+            on_press: root.change_screen('monitoring_desc', 'monitoring_desc')
+            # on_press: root.ids.screen_manager.current = 'upload_connection'
 
     ScreenManager:
         id: screen_manager
@@ -1486,4 +1639,6 @@ MainFrameWidget:
             name: 'description'
         UploadConnectionPage:
             name: 'upload_connection'
+        Monitoring:
+            name: 'monitoring_desc'
 

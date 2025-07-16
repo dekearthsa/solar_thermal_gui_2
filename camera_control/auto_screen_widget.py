@@ -269,7 +269,7 @@ class SetAutoScreen(Screen):
         )
 
         # Area should be positive and above a minimum threshold
-        return area > 100  # Adjust the threshold as needed
+        return area > 100  
 
     def apply_crop_methods(self, frame):
 
