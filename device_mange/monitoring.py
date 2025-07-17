@@ -322,13 +322,16 @@ class Monitoring(Screen):
                             content = f.read()
                         self.json_path_data = self.parse_text_file_to_json(content) 
                         self.is_path_found = True
+                            
                 if self.is_path_found == True:
                     self.ids.monitoring_helostats_data.text = "Off monitoring"
+                    self.haddle_start_get_data()
                     self.start_monitor_interval()
                 else:
                     self.ids.monitoring_helostats_data.text = f"Path not found check in ./model/forecasting/{prefix}"
             else:
                 self.ids.monitoring_helostats_data.text = "Start monitoring"
+                self.haddle_off_get_data()
                 self.haddle_off_monitor()
 
 

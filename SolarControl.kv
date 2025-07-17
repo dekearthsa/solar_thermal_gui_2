@@ -4,13 +4,15 @@
 #:import ListHelioStatsIp device_mange.listHelioStatsIp.ListHelioStatsIp
 #:import ListCameraIp device_mange.listCameraIp.ListCameraIp
 #:import Description device_mange.description.Description
-#:import UploadConnectionPage device_mange.uploadConnectionPage.UploadConnectionPage
+#:import Forecasting device_mange.forecasting.Forecasting
 #:import Monitoring device_mange.monitoring.Monitoring
+#:import HeliostatsMangement device_mange.heliostatsMangement.HeliostatsMangement
 
 ### Camera control
 #:import SetAutoScreen camera_control.auto_screen_widget.SetAutoScreen
 #:import ManualScreen camera_control.manual_screen_widget.ManualScreen
 #:import CameraSettingWidget camera_control.camera_setting_widget
+
 ### command 
 #:import ControllerManual command.manual_command.ControllerManual
 #:import ControllerAuto command.auto_command.ControllerAuto
@@ -1310,8 +1312,7 @@ MainFrameWidget:
                 pos_hint: {'center_x': 0.5}
                 on_text: root.haddle_helio_stats_selection(self, self.text)
         
-         
-<UploadConnectionPage>:
+<Forecasting>:
     size_hint: None, None
     size: 1000, 700     # 🔧 ขนาดกล่อง
     pos_hint: {"center_x": 0.5, "center_y": 0.6}  # 🎯 ตำแหน่งกลางจอ
@@ -1437,6 +1438,51 @@ MainFrameWidget:
                 Button:
                     text: 'Generate File'
                     on_press: root.generate_data()
+
+<HeliostatsMangement>:
+    size_hint: None, None
+    size: 1000, 700     # 🔧 ขนาดกล่อง
+    pos_hint: {"center_x": 0.5, "center_y": 0.6}  # 🎯 ตำแหน่งกลางจอ
+    BoxLayout:
+        orientation: 'vertical'
+        # size_hint_y: .9
+        size_hint_y: None
+        height: '300dp'  # 🔧 ปรับให้พอดี
+        width: '150dp'  
+        GridLayout:
+            cols: 1
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: '300dp'  # 🔧 ปรับให้พอดี
+                Label:
+                    text: 'Upload File'
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: '40dp'
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Syntax for adding Helio stats and camera ip'
+                    Image:
+                        source: './images/connection_array.png'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: 10
+                    spacing: 10
+                    Button:
+                        text: 'Select JSON File'
+                        size_hint_y: None
+                        height: '50dp'
+                        on_release: root.open_file_dialog()
+                    ScrollView:
+                        GridLayout:
+                            id: json_display
+                            cols: 1
+                            size_hint_y: None
+                            height: self.minimum_height
+                            padding: 10
+                            spacing: 10
 
 <Monitoring>:
     orientation: 'vertical'
@@ -1638,11 +1684,11 @@ MainFrameWidget:
             # on_press: root.ids.screen_manager.current = 'description'
         Button:
             text: "Forecasting"
-            on_press: root.change_screen('upload_connection', 'connection_upload')
+            on_press: root.change_screen('forecasting', 'forecasting')
             # on_press: root.ids.screen_manager.current = 'upload_connection'
         Button:
-            text: "Upload Heliostats"
-            on_press: root.change_screen('upload_connection', 'connection_upload')
+            text: "Heliostats setting"
+            on_press: root.change_screen('heliostatsMangement', 'heliostatsMangement')
             # on_press: root.ids.screen_manager.current = 'upload_connection'
         Button:
             text: "Monitoring"
@@ -1662,8 +1708,10 @@ MainFrameWidget:
             name: 'path_control'
         Description:
             name: 'description'
-        UploadConnectionPage:
-            name: 'upload_connection'
+        Forecasting:
+            name: 'forecasting'
+        HeliostatsMangement:
+            name: 'heliostatsMangement'
         Monitoring:
             name: 'monitoring_desc'
 
