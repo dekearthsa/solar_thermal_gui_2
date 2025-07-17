@@ -700,20 +700,6 @@ MainFrameWidget:
                     Button:
                         text: 'MTT'
                         on_press: root.haddle_mll_mode()
-                # Button:
-                #     text: 'Reset Crop'
-                #     on_press: root.reset_crop_value()
-                #     background_color: (.4, .4, .4, 1)
-
-                # Button:
-                #     text: "Save Crop"
-                #     on_press: root.save_crop_value_image()
-                #     background_color: (.4, .4, .4, 1)
-
-                # Button:
-                #     text: 'Crop Mode'
-                #     on_press: root.active_crop_value()
-                #     background_color: (.4, .4, .4, 1)
 
             ControllerManual:
                 id: controller_manual
@@ -796,7 +782,6 @@ MainFrameWidget:
 
         GridLayout:
             cols:2
-            # Area for camera image and cropping interaction
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_y: .6
@@ -866,8 +851,6 @@ MainFrameWidget:
             cols: 4
             size_hint_y: .3
             spacing: 5
-
-            # Left side: Information labels
             GridLayout:
                 cols: 1
                 spacing: 1
@@ -1313,49 +1296,11 @@ MainFrameWidget:
                 on_text: root.haddle_helio_stats_selection(self, self.text)
         
 <Forecasting>:
-    size_hint: None, None
-    size: 1000, 700     # 🔧 ขนาดกล่อง
-    pos_hint: {"center_x": 0.5, "center_y": 0.6}  # 🎯 ตำแหน่งกลางจอ
     BoxLayout:
         orientation: 'vertical'
-        # size_hint_y: .9
-        size_hint_y: None
-        height: '300dp'  # 🔧 ปรับให้พอดี
-        width: '150dp'  
-        # GridLayout:
-        #     cols: 1
-            # BoxLayout:
-            #     orientation: 'vertical'
-            #     size_hint_y: None
-            #     height: '300dp'  # 🔧 ปรับให้พอดี
-            #     Label:
-            #         text: 'Upload File'
-            #         font_size: '20sp'
-            #         size_hint_y: None
-            #         height: '40dp'
-            #     BoxLayout:
-            #         orientation: 'vertical'
-            #         Label:
-            #             text: 'Syntax for adding Helio stats and camera ip'
-            #         Image:
-            #             source: './images/connection_array.png'
-            #     BoxLayout:
-            #         orientation: 'vertical'
-            #         padding: 10
-            #         spacing: 10
-            #         Button:
-            #             text: 'Select JSON File'
-            #             size_hint_y: None
-            #             height: '50dp'
-            #             on_release: root.open_file_dialog()
-            #         ScrollView:
-            #             GridLayout:
-            #                 id: json_display
-            #                 cols: 1
-            #                 size_hint_y: None
-            #                 height: self.minimum_height
-            #                 padding: 10
-            #                 spacing: 10
+        size_hint: None, None
+        size: 1000, 700
+        pos_hint: {"center_x": 0.5, "center_y": 0.6}
         BoxLayout:
             orientation: 'vertical'
                 
@@ -1440,21 +1385,17 @@ MainFrameWidget:
                     on_press: root.generate_data()
 
 <HeliostatsMangement>:
-    size_hint: None, None
-    size: 1000, 700     # 🔧 ขนาดกล่อง
-    pos_hint: {"center_x": 0.5, "center_y": 0.6}  # 🎯 ตำแหน่งกลางจอ
     BoxLayout:
         orientation: 'vertical'
-        # size_hint_y: .9
-        size_hint_y: None
-        height: '300dp'  # 🔧 ปรับให้พอดี
-        width: '150dp'  
+        size_hint: None, None
+        size: 1000, 700
+        pos_hint: {"center_x": 0.5, "center_y": 0.6}
         GridLayout:
             cols: 1
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_y: None
-                height: '300dp'  # 🔧 ปรับให้พอดี
+                height: '300dp'
                 Label:
                     text: 'Upload File'
                     font_size: '20sp'
@@ -1645,11 +1586,6 @@ MainFrameWidget:
                         Label:
                             id: val_predict_y
                             text: 'null'
-                        
-                
-                        
-                
-
 
 <LabHeaderWidget>:
     orientation: 'vertical'
@@ -1669,31 +1605,24 @@ MainFrameWidget:
         Button:
             text: "Manual"
             on_press: root.change_screen('manual', 'manual')
-            # on_press: root.ids.screen_manager.current = 'manual'
         Button:
             text: "Auto mode"
             on_press: root.change_screen('auto', 'auto_mode')
-            # on_press: root.ids.screen_manager.current = 'auto'
         Button:
             text: "Path control"
             on_press: root.change_screen('path_control', 'path_control')
-            # on_press: root.ids.screen_manager.current = 'path_control'
         Button:
             text: "Description"
             on_press: root.change_screen('description', 'description')
-            # on_press: root.ids.screen_manager.current = 'description'
         Button:
             text: "Forecasting"
             on_press: root.change_screen('forecasting', 'forecasting')
-            # on_press: root.ids.screen_manager.current = 'upload_connection'
         Button:
             text: "Heliostats setting"
             on_press: root.change_screen('heliostatsMangement', 'heliostatsMangement')
-            # on_press: root.ids.screen_manager.current = 'upload_connection'
         Button:
             text: "Monitoring"
             on_press: root.change_screen('monitoring_desc', 'monitoring_desc')
-            # on_press: root.ids.screen_manager.current = 'upload_connection'
 
     ScreenManager:
         id: screen_manager
