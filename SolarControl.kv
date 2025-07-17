@@ -1386,44 +1386,41 @@ MainFrameWidget:
 
 <HeliostatsMangement>:
     BoxLayout:
+        spacing: 10
         orientation: 'vertical'
         size_hint: None, None
-        size: 1000, 700
-        pos_hint: {"center_x": 0.5, "center_y": 0.6}
-        GridLayout:
-            cols: 1
+        size: 900, 800
+        pos_hint: {"center_x": 0.5, "center_y": 0.65}
+        ScrollView:
+            do_scroll_x: False
             BoxLayout:
+                id: helio_list
                 orientation: 'vertical'
                 size_hint_y: None
-                height: '300dp'
+                height: self.minimum_height
+        BoxLayout:
+            spacing: 10
+            orientation: 'vertical'
+            size_hint: None, None
+            size: 650, 130
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            GridLayout:
+                cols: 2
                 Label:
-                    text: 'Upload File'
-                    font_size: '20sp'
-                    size_hint_y: None
-                    height: '40dp'
-                BoxLayout:
-                    orientation: 'vertical'
-                    Label:
-                        text: 'Syntax for adding Helio stats and camera ip'
-                    Image:
-                        source: './images/connection_array.png'
-                BoxLayout:
-                    orientation: 'vertical'
-                    padding: 10
-                    spacing: 10
-                    Button:
-                        text: 'Select JSON File'
-                        size_hint_y: None
-                        height: '50dp'
-                        on_release: root.open_file_dialog()
-                    ScrollView:
-                        GridLayout:
-                            id: json_display
-                            cols: 1
-                            size_hint_y: None
-                            height: self.minimum_height
-                            padding: 10
-                            spacing: 10
+                    text: 'HeliostatsID: '
+                TextInput:
+                    id: heliostats_input
+                    text: ""
+            GridLayout:
+                cols: 2
+                Label:
+                    text: 'IP: '
+                TextInput:
+                    id: address_input
+                    text: ""
+            Button:
+                text: 'Add heliostats'
+                on_press: root.on_adding_heliostats()
 
 <Monitoring>:
     orientation: 'vertical'
