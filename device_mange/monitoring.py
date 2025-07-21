@@ -318,7 +318,7 @@ class Monitoring(Screen):
                             
                 if self.is_path_found == True:
                     self.ids.monitoring_helostats_data.text = "Off monitoring"
-                    # self.haddle_start_get_data()
+                    self.haddle_start_get_data()
                     self.monitor_interval(dt)
                     self.start_monitor_interval()
                 else:
@@ -326,7 +326,7 @@ class Monitoring(Screen):
                     self.ids.val_status_path_found.text = f"Path not found"
             else:
                 self.ids.monitoring_helostats_data.text = "Start monitoring"
-                # self.haddle_off_get_data()
+                self.haddle_off_get_data()
                 self.haddle_off_monitor()
 
 
