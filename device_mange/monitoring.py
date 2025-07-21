@@ -28,11 +28,12 @@ class Monitoring(Screen):
         self.static_high_v = 255
         self.static_blur_kernel = (55,55) 
         self.static_min_area = 50000
-        self.camera_connection = ""
-        self.helio_stats_connection = ""
+        self.camera_connection = "./test_video.avi"
+        # self.helio_stats_connection = ""
         self.menu_now="auto_mode"
-        self.camera_perspective = ""
-        self.helio_get_data = ""
+        self.camera_perspective = "camera-top"
+        self.helio_get_conn = ""
+        self.helio_get_id = ""
         self.list_data_helio = []
         self.json_path_data = []
         self.is_path_found = False
@@ -108,13 +109,11 @@ class Monitoring(Screen):
     def call_open_camera(self):
         ###Initialize video capture and start updating frames.###
         try:
-            if self.camera_connection != "" and self.helio_stats_connection != "":
+            if self.camera_connection != "" and self.helio_get_conn != "":
                 if self.camera_connection != "":
                     if not self.capture:
                         try:
                             self.capture = cv2.VideoCapture(self.camera_connection, cv2.CAP_FFMPEG)
-                            self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1) ## new setup 
-
                             if not self.capture.isOpened():
                                 self.show_popup("Error", "Could not open camera.")
                                 self.ids.auto_camera_status.text = "Error: Could not open camera"
@@ -129,27 +128,19 @@ class Monitoring(Screen):
             print(e)
 
     def update_frame(self, dt):
-        # self.capture.start()
-        # if not hasattr(self, 'capture'):
-        #     return 
-                
-        # ret, frame = self.capture.read()
         if self.capture:
-            try:
-                # ret, frame = self.capture.read()
-                # if not hasattr(self, 'capture'):
-                #     return 
-                
+            # try:
                 ret, frame = self.capture.read()
                 
                 if not ret or frame is None:
                     print(frame)
                     return
                 else:
-                        frame = cv2.flip(frame, 0) ### <= flip
-                        frame, _, _ = self.apply_crop_methods(frame) 
-                        ### frame bottom ###
-                        contours_light, _ = self.__find_bounding_boxes_hsv_mode(
+                    frame = cv2.flip(frame, 0) ### <= flip
+                    # print(frame)
+                    frame, _, _ = self.apply_crop_methods(frame) 
+                    ### frame bottom ###
+                    contours_light, _ = self.__find_bounding_boxes_hsv_mode(
                             frame_color=frame, 
                             low_H=self.static_low_h, 
                             low_S=self.static_low_s, 
@@ -161,35 +152,28 @@ class Monitoring(Screen):
                         )
 
                         # Calculate centers
-                        centers_light = self.calculate_centers(contours_light)
-                        centers_frame = self.__calulate_centers_frame(frame)
+                    centers_light = self.calculate_centers(contours_light)
+                    centers_frame = self.__calulate_centers_frame(frame)
                         
-                        for cnt in contours_light:
-                            c_area = cv2.contourArea(cnt)
-                            if self.static_min_area < c_area: #and self.static_max_area > c_area:
-                                x, y, w, h = cv2.boundingRect(cnt)
-                                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                                cv2.circle(frame, (centers_light[0][0], centers_light[1][0]), 5, (255, 0, 0), -1)
-                                cv2.putText(frame, "C-L", (centers_light[0][0], centers_light[1][0]+30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    for cnt in contours_light:
+                        c_area = cv2.contourArea(cnt)
+                        if self.static_min_area < c_area: #and self.static_max_area > c_area:
+                            x, y, w, h = cv2.boundingRect(cnt)
+                            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                            cv2.circle(frame, (centers_light[0][0], centers_light[1][0]), 5, (255, 0, 0), -1)
+                            cv2.putText(frame, "C-L", (centers_light[0][0], centers_light[1][0]+30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
-                        ### draw center of frame
-                        cv2.circle(frame, centers_frame, 5,  (0, 255, 0), -1)
-                        cv2.putText(frame, "C-F", centers_frame, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    ### draw center of frame
+                    cv2.circle(frame, centers_frame, 5,  (0, 255, 0), -1)
+                    cv2.putText(frame, "C-F", centers_frame, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                         
-                        # Convert frame to Kivy texture
-                        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                        texture_rgb = Texture.create(size=(frame_rgb.shape[1], frame_rgb.shape[0]), colorfmt='rgb')
-                        texture_rgb.blit_buffer(frame_rgb.tobytes(), colorfmt='rgb', bufferfmt='ubyte')
-                        # texture_bin = Texture.create(size=(bin_light.shape[1], bin_light.shape[0]), colorfmt='luminance')
-                        # texture_bin.blit_buffer(bin_light.tobytes(), colorfmt='luminance', bufferfmt='ubyte')
-
-                        self.ids.monitoring_frame.texture = texture_rgb
-                        # self.ids.auto_cam_image_demo.texture = texture_bin
-
-
-                    
-            except Exception as e:
-                print("Video stream file damage pass frame...")
+                    # Convert frame to Kivy texture
+                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    texture_rgb = Texture.create(size=(frame_rgb.shape[1], frame_rgb.shape[0]), colorfmt='rgb')
+                    texture_rgb.blit_buffer(frame_rgb.tobytes(), colorfmt='rgb', bufferfmt='ubyte')
+                    self.ids.monitoring_frame.texture = texture_rgb
+            # except Exception as e:
+            #     print(f"Video stream file damage pass frame... => {e}")
 
 
     def show_popup(self, title, message):
@@ -216,17 +200,24 @@ class Monitoring(Screen):
             pass
 
     def fetch_all_helio_cam(self):
+        list_helio = []
         with open('./data/setting/connection.json', 'r') as file:
             data = json.load(file)
         self.list_data_helio = data['helio_stats_ip']
         # self.list_data_cam = data['camera_url']
-        self.ids.spinner_helio_selection.values = [item['id'] for item in data.get('helio_stats_ip', [])]
+        for item in data['helio_stats_ip']:
+            if item['id'] != "all":
+                list_helio.append(item['id'])
+                
+        self.ids.spinner_helio_selection.values = list_helio
+        # self.ids.spinner_helio_selection.values = [item['id'] for item in data.get('helio_stats_ip', [])]
 
     def select_drop_down_menu_helio_path(self, spinner, text):
         for h_data in self.list_data_helio:
             if text == h_data['id']:
                 self.helio_endpoint = "http://"+h_data['ip']+"/update-data"
-                self.helio_get_data = h_data['ip']
+                self.helio_get_conn = h_data['ip']
+                self.helio_get_id = h_data['id']
 
     def haddle_change_hsv_threshold(self, value):
         try:
@@ -261,13 +252,13 @@ class Monitoring(Screen):
 
     def fetch_data_helio_stats(self, dt):
         # print("loop on")
-        if self.helio_get_data == "":
+        if self.helio_get_conn == "":
             self.show_popup("Alert", "Please select heliostats.")
-        elif self.helio_get_data == "all":
+        elif self.helio_get_conn == "all":
             self.show_popup("Alert", "Cannot select all heliostats.")
         else:
             try:  
-                data = requests.get("http://"+self.helio_get_data+"/",timeout=3)
+                data = requests.get("http://"+self.helio_get_conn+"/",timeout=3)
                 # data = requests.get("http://"+"192.168.0.106"+"/")
                 # data = requests.get(url="http://192.168.0.106/")
                 setJson = data.json()
@@ -291,7 +282,7 @@ class Monitoring(Screen):
                 self.show_popup("Alert", "connection error close get data.")
                 self.haddle_off_get_data()
 
-    def parse_text_file_to_json(file_path):
+    def parse_text_file_to_json(self,file_path):
         data_list = []
         with open(file_path, 'r') as f:
             for line in f:
@@ -302,41 +293,49 @@ class Monitoring(Screen):
                     data_list.append(data)
         return data_list
 
-    def haddle_monitor(self, status_moni, day, month):
-        
-        if self.helio_get_data == "":
+    def haddle_monitor(self):
+        dt = datetime.now()
+        status_moni = self.ids.monitoring_helostats_data.text
+        if self.helio_get_conn == "":
             self.show_popup("Alert", "Please select heliostats.")
-        elif self.helio_get_data == "all":
+        elif self.helio_get_conn == "all":
             self.show_popup("Alert", "Cannot select all heliostats.")
-        elif day == "" and month == "":
-            self.show_popup("Alert", "To start monitor select date that path will use.")
+        # elif day == "" and month == "":
+        #     self.show_popup("Alert", "To start monitor select date that path will use.")
         else: 
             if status_moni == "Start monitoring":
                 directory = './model/forecasting'
-                prefix = f"data_{status_moni}_{day}{month}"
+                prefix = f"data_{self.helio_get_id}_{dt.day:02}{dt.month:02}"
+                print(prefix)
                 for filename in os.listdir(directory):
                     if filename.startswith(prefix) and filename.endswith('.txt'):
                         file_path = os.path.join(directory, filename)
-                        print(f"Found file: {file_path}")
-                        with open(file_path, 'r') as f:
-                            content = f.read()
-                        self.json_path_data = self.parse_text_file_to_json(content) 
+                        # print(f"Found file: {file_path}")
+                        # with open(file_path, 'r') as f:
+                        #     content = f.read()
+                        self.json_path_data = self.parse_text_file_to_json(file_path) 
                         self.is_path_found = True
                             
                 if self.is_path_found == True:
                     self.ids.monitoring_helostats_data.text = "Off monitoring"
-                    self.haddle_start_get_data()
+                    # self.haddle_start_get_data()
+                    self.monitor_interval(dt)
                     self.start_monitor_interval()
                 else:
-                    self.ids.monitoring_helostats_data.text = f"Path not found check in ./model/forecasting/{prefix}"
+                    self.show_popup("File not found.", f"Path not found check in ./model/forecasting/{prefix}")
+                    self.ids.val_status_path_found.text = f"Path not found"
             else:
                 self.ids.monitoring_helostats_data.text = "Start monitoring"
-                self.haddle_off_get_data()
+                # self.haddle_off_get_data()
                 self.haddle_off_monitor()
 
 
     def haddle_off_monitor(self):
         Clock.unschedule(self.monitor_interval)
+        self.ids.val_status_path_found.text = "Stop"
+        self.ids.val_is_timing_x.text = "00:00:00"
+        self.ids.val_predict_X.text = "null"
+        self.ids.val_predict_y.text = "null"
 
     def start_monitor_interval(self):
         Clock.schedule_interval(self.monitor_interval, 10)

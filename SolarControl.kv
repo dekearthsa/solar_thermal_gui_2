@@ -1402,7 +1402,7 @@ MainFrameWidget:
             spacing: 10
             orientation: 'vertical'
             size_hint: None, None
-            size: 650, 130
+            size: 650, 230
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             GridLayout:
                 cols: 2
@@ -1480,7 +1480,7 @@ MainFrameWidget:
                     Button:
                         id: monitoring_helostats_data
                         text: "Start monitoring"
-                        on_press: root.haddle_monitor(self, self.text)
+                        on_press: root.haddle_monitor()
     
                 GridLayout:
                     rows: 8

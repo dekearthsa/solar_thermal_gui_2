@@ -138,6 +138,8 @@ class HeliostatsMangement(Screen):
 
     
     def get_all_list_of_heliostats(self):
+        self.ids.heliostats_input.text =""
+        self.ids.address_input.text =""
         with open(CONN_PATH, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
@@ -199,12 +201,45 @@ class HeliostatsMangement(Screen):
         if heliostats_id == "" and ip_address == "": 
             self.show_popup(title="Alert", message="Cannot add empty ID and Address.")
         payload = {
-            "id": heliostats_id,
-            "ip": ip_address
+            "id": heliostats_id.strip(),
+            "ip": ip_address.strip()
         }
-        with open(CONN_PATH, 'w', encoding='utf-8') as f:
-            json.dump(payload, f, indent=4)
 
+        with open(CONN_PATH, 'r', encoding='utf-8') as rd:
+            list_conn = json.load(rd)
+        
+        list_conn['helio_stats_ip'].append(payload)
+        print(list_conn)
+        with open(CONN_PATH, 'w', encoding='utf-8') as f:
+            json.dump(list_conn, f, indent=4)
+        self.get_all_list_of_heliostats()
+
+    # def refresh_heliostats_list(self):
+    #     parent = self.ids.helio_list
+    #     parent.clear_widgets()
+
+    #     self.ids.heliostats_input.text =""
+    #     self.ids.address_input.text =""
+
+    #     with open(CONN_PATH, 'r', encoding='utf-8') as rd:
+    #         list_conn = json.load(rd)
+
+    #     for item in list_conn.get('helio_stats_ip', []):
+    #         if item['id'] != 'all':
+    #             grid = GridLayout(cols=2, spacing=10, size_hint_y=None, height=30)
+    #             label = Label(
+    #                 text=f"ID: {item['id']} | IP: {item['ip']}",
+    #                 size_hint_y=None,
+    #                 height=30
+    #             )
+    #             delete_btn = Button(
+    #                 text='Delete',
+    #                 size_hint=(0.2, 1),
+    #                 on_press=lambda x, i=item: self.remove_heliostat(i)  # ส่ง item ไปให้ลบ
+    #             )
+    #             grid.add_widget(label)
+    #             grid.add_widget(delete_btn)
+    #             parent.add_widget(grid)
 
     def haddle_off_get_data(self):
         pass

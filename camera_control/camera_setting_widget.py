@@ -20,7 +20,7 @@ class CameraSettingWidget(Screen):
         self.dragging = False          # Initialize dragging
         self.rect = None               # Initialize rectangle
         self.status_text = 'Ready'     # Initialize status text
-        self.camera_connection = "rtsp://admin:Nu12131213@192.168.1.170:554/Streaming/Channels/101/"
+        self.camera_connection = "./test_video.avi"
         self.counting_number_crop = 0
         self.perspective_transform_top = []
         self.max_width_top = 0
@@ -35,7 +35,7 @@ class CameraSettingWidget(Screen):
         try:
             with open('./data/setting/setting.json') as file:
                 setting_json = json.load(file)
-
+            # print("setting_json => ", setting_json)
             if setting_json['is_run_path'] != 1:
                 if self.camera_connection != "":
                     if not self.capture:

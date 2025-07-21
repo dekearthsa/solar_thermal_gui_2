@@ -76,7 +76,7 @@ class Forecasting(Screen):
         }
 
         TARGET_HELIO = self.ids.heliostats_id.text
-        TARGET_HELIO = TARGET_HELIO.trim()
+        TARGET_HELIO = TARGET_HELIO.strip()
         TARGET_HELIO = TARGET_HELIO.lower()
         RECIVER_ANGLE = 45
         CALIBRATE_ANGLE = 58
