@@ -144,9 +144,10 @@ class HeliostatsMangement(Screen):
             data = json.load(f)
 
         helios = data.get('helio_stats_ip', [])
+        camera_addrs = data.get('camera_url', [])
         parent = self.ids.helio_list
         parent.clear_widgets()
-
+        self.ids.camera_address_val.text = camera_addrs[0]['url']
         for idx, item in enumerate(helios):
             if item['id'] == 'all':
                 continue   # ไม่ให้ลบรายการ all
@@ -214,32 +215,6 @@ class HeliostatsMangement(Screen):
             json.dump(list_conn, f, indent=4)
         self.get_all_list_of_heliostats()
 
-    # def refresh_heliostats_list(self):
-    #     parent = self.ids.helio_list
-    #     parent.clear_widgets()
-
-    #     self.ids.heliostats_input.text =""
-    #     self.ids.address_input.text =""
-
-    #     with open(CONN_PATH, 'r', encoding='utf-8') as rd:
-    #         list_conn = json.load(rd)
-
-    #     for item in list_conn.get('helio_stats_ip', []):
-    #         if item['id'] != 'all':
-    #             grid = GridLayout(cols=2, spacing=10, size_hint_y=None, height=30)
-    #             label = Label(
-    #                 text=f"ID: {item['id']} | IP: {item['ip']}",
-    #                 size_hint_y=None,
-    #                 height=30
-    #             )
-    #             delete_btn = Button(
-    #                 text='Delete',
-    #                 size_hint=(0.2, 1),
-    #                 on_press=lambda x, i=item: self.remove_heliostat(i)  # ส่ง item ไปให้ลบ
-    #             )
-    #             grid.add_widget(label)
-    #             grid.add_widget(delete_btn)
-    #             parent.add_widget(grid)
 
     def haddle_off_get_data(self):
         pass
@@ -250,4 +225,13 @@ class HeliostatsMangement(Screen):
     def stop_fetch_loop(self):
         pass
 
- 
+    def haddle_update_camera(self):
+        cam_addr = self.ids.camera_address_val.text
+        with open(CONN_PATH, 'r') as f:
+            camera_conn_list = json.load(f)
+
+        for item in camera_conn_list['camera_url']:
+            item['url'] = cam_addr.strip()
+
+        with open(CONN_PATH, 'w') as wf:
+            json.dump(camera_conn_list,wf,indent=4)

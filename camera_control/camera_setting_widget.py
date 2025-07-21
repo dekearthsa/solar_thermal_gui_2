@@ -12,6 +12,7 @@ from kivy.uix.popup import Popup
 class CameraSettingWidget(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Clock.schedule_once(lambda dt: self.fetch_storage_endpoint())
         self.capture = None
         self.selected_points = []      # List to store selected points as (x, y) in image coordinates
         self.polygon_lines = None      # Line instruction for the polygon
@@ -20,7 +21,7 @@ class CameraSettingWidget(Screen):
         self.dragging = False          # Initialize dragging
         self.rect = None               # Initialize rectangle
         self.status_text = 'Ready'     # Initialize status text
-        self.camera_connection = "./test_video.avi"
+        self.camera_connection = "rtsp://admin:Nu12131213@192.168.1.170:554/Streaming/Channels/101/"
         self.counting_number_crop = 0
         self.perspective_transform_top = []
         self.max_width_top = 0
@@ -534,3 +535,7 @@ class CameraSettingWidget(Screen):
     def stop_fetch_loop(self):
         pass
 
+    def fetch_storage_endpoint(self):
+        with open('./data/setting/connection.json', 'r') as file:
+            camera_conn_data = json.load(file) 
+        self.camera_connection =  camera_conn_data['camera_url'][0]['url']

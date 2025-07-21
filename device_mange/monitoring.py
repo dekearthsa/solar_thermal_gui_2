@@ -17,6 +17,7 @@ class Monitoring(Screen):
         super().__init__(**kwargs)
         self.capture = None
         Clock.schedule_once(lambda dt: self.fetch_all_helio_cam())
+        Clock.schedule_once(lambda dt: self.fetch_storage_endpoint())
         
 
         #### IN DEBUG MODE CHANGE THRES HERE ####
@@ -28,7 +29,7 @@ class Monitoring(Screen):
         self.static_high_v = 255
         self.static_blur_kernel = (55,55) 
         self.static_min_area = 50000
-        self.camera_connection = "./test_video.avi"
+        self.camera_connection = ""
         # self.helio_stats_connection = ""
         self.menu_now="auto_mode"
         self.camera_perspective = "camera-top"
@@ -358,3 +359,8 @@ class Monitoring(Screen):
 
     def stop_fetch_loop(self):
         pass
+
+    def fetch_storage_endpoint(self):
+        with open('./data/setting/setting.json', 'r') as file:
+            setting_data = json.load(file) 
+        self.camera_connection =  setting_data['storage_endpoint']['camera_ip']['ip']
