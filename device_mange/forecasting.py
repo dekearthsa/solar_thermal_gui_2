@@ -16,8 +16,7 @@ import pytz
 from pysolar.solar import get_altitude, get_azimuth
 from pysolar.radiation import get_radiation_direct
 import json
-# from .fileChooserPopup import FileChooserPopup 
-# from kivy.app import App
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
