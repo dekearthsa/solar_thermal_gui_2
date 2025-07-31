@@ -1341,9 +1341,14 @@ MainFrameWidget:
                     cols: 2
                     Label:
                         text: 'Heliostats: '
-                    TextInput:
-                        # text: 'Heliostats: '
-                        id: heliostats_id
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: .20
+                        Spinner:
+                            id: spinner_helio_selection
+                            text: 'Select helio'
+                            pos_hint: {'center_x': 0.5}
+                            on_text: root.select_drop_down_menu_helio_path(self, self.text)
                 GridLayout:
                     # size_hint_y: .1
                     cols: 2

@@ -16,7 +16,7 @@ import pytz
 from pysolar.solar import get_altitude, get_azimuth
 from pysolar.radiation import get_radiation_direct
 import json
-
+from kivy.clock import Clock
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -24,8 +24,9 @@ logging.getLogger('tensorflow').setLevel(logging.ERROR)
 class Forecasting(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Clock.schedule_once(lambda dt: self.fetch_all_helio_cam())
         self.list_heliostats_id = ['h1','h2','h3','h4','h5','h6','h7','h6','h9','h10','h11','h12']
-    
+        self.helio_get_id = ""
     def haddle_off_get_data(self):
         pass
 
@@ -35,6 +36,23 @@ class Forecasting(Screen):
     def stop_fetch_loop(self):
         pass
 
+
+    def fetch_all_helio_cam(self):
+        list_helio = []
+        with open('./data/setting/connection.json', 'r') as file:
+            data = json.load(file)
+        self.list_data_helio = data['helio_stats_ip']
+        # self.list_data_cam = data['camera_url']
+        for item in data['helio_stats_ip']:
+            if item['id'] != "all":
+                list_helio.append(item['id'])
+                
+        self.ids.spinner_helio_selection.values = list_helio
+
+    def select_drop_down_menu_helio_path(self, spinner, text):
+        for h_data in self.list_data_helio:
+            if text == h_data['id']:
+                self.helio_get_id = h_data['id']
 
     def get_solar_declination(self,date: datetime) -> float:
         n  = date.timetuple().tm_yday
@@ -77,7 +95,9 @@ class Forecasting(Screen):
             "h12": ( 4500, 5987, 1350)
         }
 
-        TARGET_HELIO = self.ids.heliostats_id.text
+        # TARGET_HELIO = self.ids.heliostats_id.text
+
+        TARGET_HELIO = self.helio_get_id
         TARGET_HELIO = TARGET_HELIO.strip()
         TARGET_HELIO = TARGET_HELIO.lower()
         RECIVER_ANGLE = 45
