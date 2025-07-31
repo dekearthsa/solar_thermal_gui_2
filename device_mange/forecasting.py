@@ -24,7 +24,7 @@ logging.getLogger('tensorflow').setLevel(logging.ERROR)
 class Forecasting(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.list_heliostats_id = ['h1','h2','h3','h4','h5','h6','h7','h6','h9']
+        self.list_heliostats_id = ['h1','h2','h3','h4','h5','h6','h7','h6','h9','h10','h11','h12']
     
     def haddle_off_get_data(self):
         pass
