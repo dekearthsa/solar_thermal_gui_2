@@ -1,13 +1,11 @@
 from kivy.uix.actionbar import Button
-import re
-# from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 import csv
 import os
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-from datetime import datetime, time
+from datetime import datetime,time
 import re
 from kivy.clock import Clock
 import json
@@ -16,7 +14,7 @@ from controller.crud_data import CrudData
 from controller.control_origin import ControlOrigin
 from controller.control_get_solar_cal import ControlCalSolar
 from controller.control_heliostats import ControlHelioStats
-import time as tz
+import time as tm
 import logging 
 from pysolar.solar import get_altitude, get_azimuth
 from pysolar.radiation import get_radiation_direct
@@ -46,7 +44,7 @@ class ControllerAuto(BoxLayout):
         
         self.status_finish_loop_mode_first = False
         self.static_title_mode = "Auto menu || Camera status:On"
-        self.time_loop_update = 1.5 ## default 1 sec test update frame แก้ตรงนี้นะครับปรับ loop เวลาคำนวณ diff auto mode
+        self.time_loop_update = 2.0 ## default 1 sec test update frame แก้ตรงนี้นะครับปรับ loop เวลาคำนวณ diff auto mode
         self.time_check_light_update = 1
         self.stop_move_helio_x_stats = 4 ### Stop move axis x when diff in theshold
         self.stop_move_helio_y_stats = 4 ### Stop move axis y when diff in theshold
@@ -518,8 +516,7 @@ class ControllerAuto(BoxLayout):
                 
                 # 2. Send nearest time data
                 result = ControlHelioStats.move_helio_in(
-                    self, 
-                    ip=h_data['ip'],
+                    self, ip=h_data['ip'],
                     target=self.camera_url_id.text,
                     heliostats_id=h_data['id']
                 )
@@ -737,7 +734,7 @@ class ControllerAuto(BoxLayout):
                 list_set_origin_step1.append(h_data)
 
         print("Set timeout origin X")
-        tz.sleep(self.time_sleep_origin)
+        tm.sleep(self.time_sleep_origin)
 
         headers = {'Content-Type': 'application/json'  }
         payload = {"topic": "mtt","speed": self.speed_origin,"x": 300.0,"y": 0.0}
@@ -752,7 +749,7 @@ class ControllerAuto(BoxLayout):
                 print("Error haddle_set_index_origin = ",e)
                 self.list_fail_set_origin.append(h_data)
         print("Set timeout origin X 300")
-        tz.sleep(self.time_sleep_origin)
+        tm.sleep(self.time_sleep_origin)
 
         for h_data in list_set_origin_step2:
             payload_y = ControlOrigin.send_set_origin_y(
@@ -766,7 +763,7 @@ class ControllerAuto(BoxLayout):
             else:
                 list_set_origin_step3.append(h_data)
         print("Set timeout origin Y")
-        tz.sleep(self.time_sleep_origin)
+        tm.sleep(self.time_sleep_origin)
 
         headers = {'Content-Type': 'application/json'  }
         payload = {"topic": "mtt","speed": self.speed_origin,"x": 300.0,"y": 300.0}
@@ -781,7 +778,7 @@ class ControllerAuto(BoxLayout):
                 print("Error haddle_set_index_origin = ",e)
                 self.list_fail_set_origin.append(h_data)
         print("Set timeout origin X 300")
-        tz.sleep(self.time_sleep_origin)
+        tm.sleep(self.time_sleep_origin)
 
         if len(self.list_fail_set_origin) == 0:
             self.rety_origin = False
@@ -868,7 +865,7 @@ class ControllerAuto(BoxLayout):
 
             comp_status = requests.get("http://"+self.__light_checking_ip_operate)
             setJson = comp_status.json()
-            print("setJson => ", setJson)
+            # print("setJson => ", setJson)
             # if setJson['move_comp'] == 0 and setJson['start_tracking'] == 1:
             if setJson['safety']['move_comp'] == 1 and setJson['safety']['start_trarcking'] == 0:
                 self.status_esp_send_timer = False
@@ -907,9 +904,10 @@ class ControllerAuto(BoxLayout):
                 timestamp = now.strftime("%d/%m/%y %H:%M:%S")
                 path_time_stamp = now.strftime("%d_%m_%y")
                 if abs(center_x - target_x) <= self.stop_move_helio_x_stats and abs(center_y - target_y) <= self.stop_move_helio_y_stats:
-                    try:
+                    # try:
                         payload = requests.get(url="http://"+self.__light_checking_ip_operate, timeout=30)
                         setJson = payload.json()
+                        print("raw get http => ", setJson)
                         # print("Start Save pos...")
                         self.__haddle_save_positon(
                                 timestamp=timestamp,
@@ -931,10 +929,10 @@ class ControllerAuto(BoxLayout):
                                 elevation=setJson['elevation'],
                                 azimuth=setJson['azimuth'],
                             )
-                    except Exception as e:
-                        print("error update_loop_calulate_diff => ", e)
-                        self.__off_loop_auto_calculate_diff()
-                        self.show_popup_continued(title="Error connection get calculate diff", message="Error connection "+f"{self.__light_checking_ip_operate}"+"\nplease check connection and click retry.", action="reconnect-auto-mode")
+                    # except Exception as e:
+                    #     print("error update_loop_calulate_diff => ", e)
+                    #     self.__off_loop_auto_calculate_diff()
+                    #     self.show_popup_continued(title="Error connection get calculate diff", message="Error connection "+f"{self.__light_checking_ip_operate}"+"\nplease check connection and click retry.", action="reconnect-auto-mode")
                 else:
                     if self.status_esp_send_timer == False:
                         self.__send_payload(
@@ -961,17 +959,17 @@ class ControllerAuto(BoxLayout):
                     setJson = payload.json()
                     with open('./data/setting/setting.json', 'r') as file:
                         setting_data = json.load(file)
-
+                    
                     cuz_now = datetime.now().time()
-                    cuz_start = time(7, 30)    
-                    cuz_end = time(12, 1)     
+                    cuz_start = time(7, 30,0)    
+                    cuz_end   = time(12, 1,0)  
                     if cuz_start <= cuz_now <= cuz_end:
-                        print("7:30-12:01")
+                        print("7:30 - 12:01")
                         self.current_pos_heliostats_for_moveout['x'] = setJson['currentX'] +  setting_data['control_speed_distance']['auto_mode']['moveout_x_stay']
                         self.current_pos_heliostats_for_moveout['y'] = setJson['currentY'] -  setting_data['control_speed_distance']['auto_mode']['moveout_y_stay']
                         self.current_pos_heliostats_for_moveout['speed'] = setting_data['control_speed_distance']['auto_mode']['speed']
                     else:
-                        print("not in 7:30-12:01")
+                        print("Not in: 7:30 - 12:01")
                         self.current_pos_heliostats_for_moveout['x'] = setJson['currentX'] -  setting_data['control_speed_distance']['auto_mode']['moveout_x_stay']
                         self.current_pos_heliostats_for_moveout['y'] = setJson['currentY'] +  setting_data['control_speed_distance']['auto_mode']['moveout_y_stay']
                         self.current_pos_heliostats_for_moveout['speed'] = setting_data['control_speed_distance']['auto_mode']['speed']
@@ -1075,15 +1073,17 @@ class ControllerAuto(BoxLayout):
             }
         try:
             response = requests.post("http://"+self.__light_checking_ip_operate+"/auto-data", data=json.dumps(payload), headers=headers, timeout=5)
-            print("=== DEBUG AUTO ===")
+            # print("=== DEBUG AUTO ===")
             # print("End point => ","http://"+self.__light_checking_ip_operate+"/auto-data")
-            print("payload => ",payload)
+            # print("payload => ",payload)
             # print("reply status => ",response.status_code)
             self.status_esp_send_timer = True
             # print("debug value post method = ",response)
         except Exception as e:
-            print("error send pyload diff", e)
+            # print("error send pyload diff", e)
             self.show_popup_continued(title="Error connection", message="Error connection "+f"{self.__light_checking_ip_operate}"+"\nplease check connection and click retry.", action="reconnect-auto-mode")
+            
+            
     def convert_string_error_center_data(self):
         try:
             string_error_data =  self.error_center_auto.text
@@ -1094,13 +1094,11 @@ class ControllerAuto(BoxLayout):
                 return x, y
         except:
             return 0,0
-    
-    
+
     def insert_into_db(self, data_in):
         try:
             ### STORE ERROR X Y ###
             error_x, error_y = self.convert_string_error_center_data()
-            
             conn = mysql.connector.connect(
                 host=self.db_host,
                 user=self.db_user,
@@ -1130,13 +1128,14 @@ class ControllerAuto(BoxLayout):
                 data_in['radiation'],
                 data_in['x'],
                 data_in['y'],
-                float(error_x),
-                float(error_y)
+                error_x,
+                error_y
                 )
             
             cursor.execute(query, values)
             conn.commit()
             conn.close()
+            print("Insert database sucess!")
         except Exception as e:
             print("Insert database error" + f"{e}")
 
@@ -1165,8 +1164,8 @@ class ControllerAuto(BoxLayout):
         }
 
         tz = pytz.timezone(self.time_zone)
-        time = datetime.now(tz)  # Get current local time
-        is_time = time.astimezone(pytz.utc)  # Convert to UTC
+        time_s = datetime.now(tz)  # Get current local time
+        is_time = time_s.astimezone(pytz.utc)  # Convert to UTC
         is_altitude = get_altitude(self.latitude, self.longitude,is_time)
         is_azimuth = get_azimuth(self.latitude, self.longitude,is_time)
         declination = ControlCalSolar.get_solar_declination(self,now)  # มุมเอนเอียงของดวงอาทิตย์
@@ -1196,21 +1195,27 @@ class ControllerAuto(BoxLayout):
         json_str_gyro = json.dumps(adding_path_data_gyro)
         perfixed_json = f"*{json_str}"
         perfixed_gyro_json = f"*{json_str_gyro}"
-        cuz_now = datetime.now().time()
-        cuz_start = time(7, 30)    
-        cuz_end = time(12, 1) 
-        if cuz_start <= cuz_now <= cuz_end: 
-            print("7:30-12:01")
+        
+        print("currentX => ", currentX)
+        print("currentY => ", currentY)
+        cur_now = datetime.now().time()
+        cur_start = time(7, 30, 0)    
+        cur_end   = time(12, 1, 0)     
+        print("before self.current_pos_heliostats_for_moveout => ",  self.current_pos_heliostats_for_moveout)
+        if cur_start <= cur_now <= cur_end:
+            print("7:30 - 12:01")
             self.current_pos_heliostats_for_moveout['x'] = currentX +  storage['control_speed_distance']['auto_mode']['moveout_x_stay']
             self.current_pos_heliostats_for_moveout['y'] = currentY -  storage['control_speed_distance']['auto_mode']['moveout_y_stay']
             self.current_pos_heliostats_for_moveout['speed'] = storage['control_speed_distance']['auto_mode']['speed']
+            print("7:30 - 12:01 before self.current_pos_heliostats_for_moveout => ",  self.current_pos_heliostats_for_moveout)
         else:
-            print("Not in 7:30-12:01")
+            print("Not in: 7:30 - 12:01")
             self.current_pos_heliostats_for_moveout['x'] = currentX -  storage['control_speed_distance']['auto_mode']['moveout_x_stay']
             self.current_pos_heliostats_for_moveout['y'] = currentY +  storage['control_speed_distance']['auto_mode']['moveout_y_stay']
             self.current_pos_heliostats_for_moveout['speed'] = storage['control_speed_distance']['auto_mode']['speed']
         # print("Try to move-out")
-        print("self.current_pos_heliostats_for_moveout => ",self.current_pos_heliostats_for_moveout)
+            print("Not in 7:30 - 12:01 before self.current_pos_heliostats_for_moveout => ",  self.current_pos_heliostats_for_moveout)
+        print("After self.current_pos_heliostats_for_moveout => ",  self.current_pos_heliostats_for_moveout)
         ControlHelioStats.move_helio_out(self, ip=self.__light_checking_ip_operate, payload=self.current_pos_heliostats_for_moveout)
         # print("Move out success.")
         self.current_pos_heliostats_for_moveout = {"topic":"mtt",}
@@ -1552,7 +1557,7 @@ class ControllerAuto(BoxLayout):
                 print("handler_force_off_btn => error equests.post"+ f"{response.status_code}")
                 self.show_popup(title="Connection error", message="func handler_force_off_btn command stop"+ f"{response.status_code}")
             self.ids.logging_process = "Heliostats is stop."
-            tz.sleep(1)
+            tm.sleep(1)
 
             self.ids.logging_process = "Try to get current POS..."
             payload = requests.get(url="http://"+self.  __light_checking_ip_operate, timeout=30)
@@ -1566,24 +1571,25 @@ class ControllerAuto(BoxLayout):
                 setting_data = json.load(file)
             ### Notic หลักการทำงาสน
             cuz_now = datetime.now().time()
-            cuz_start = time(7, 30)    
-            cuz_end = time(12, 1)   
+            cuz_start = time(7, 30,0)    
+            cuz_end = time(12, 1,0) 
             if cuz_start <= cuz_now <= cuz_end:
-                print("7:30-12:01")
+                print("7:30 - 12:01")
                 self.current_pos_heliostats_for_moveout['x'] = setJson['currentX'] + setting_data['control_speed_distance']['auto_mode']['moveout_x_stay']
                 self.current_pos_heliostats_for_moveout['y'] =  setJson['currentY'] -  setting_data['control_speed_distance']['auto_mode']['moveout_y_stay']
                 self.current_pos_heliostats_for_moveout['speed'] = setting_data['control_speed_distance']['auto_mode']['speed']
             else:
-                print("Not in 7:30-12:01")
+                print("Not in: 7:30 - 12:01")
                 self.current_pos_heliostats_for_moveout['x'] = setJson['currentX'] - setting_data['control_speed_distance']['auto_mode']['moveout_x_stay']
                 self.current_pos_heliostats_for_moveout['y'] =  setJson['currentY'] +  setting_data['control_speed_distance']['auto_mode']['moveout_y_stay']
                 self.current_pos_heliostats_for_moveout['speed'] = setting_data['control_speed_distance']['auto_mode']['speed']
-            print("self.current_pos_heliostats_for_moveout => ",self.current_pos_heliostats_for_moveout)
+            
+            print("self.current_pos_heliostats_for_moveout => ", self.current_pos_heliostats_for_moveout)
             status = ControlHelioStats.move_helio_out(self, ip=self.__light_checking_ip_operate, payload=self.current_pos_heliostats_for_moveout)
             if status['is_fail']:
                 print("handler_force_off_btn => error move_helio_out"+ f"{response.status_code}")
                 self.show_popup(title="Connection error", message="func handler_force_off_btn command move_helio_out"+ f"{response.status_code}")
-            tz.sleep(2)
+            tm.sleep(2)
             self.force_off_auto()
         except Exception as e:
             self.ids.logging_process = "Connection error " + f"{self.__light_checking_ip_operate}"
