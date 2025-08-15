@@ -53,6 +53,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['up'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
                 print(payload_set)
@@ -80,6 +81,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['left'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
                 print(payload_set)
@@ -108,6 +110,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['right'], 
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
 
@@ -134,6 +137,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['down'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
 
@@ -183,6 +187,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['right_down'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
 
@@ -210,6 +215,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['left_down'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
 
@@ -237,6 +243,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['left_up'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
 
@@ -264,6 +271,7 @@ class ControllerManual(BoxLayout):
                     "topic":self.static_manaul_dict['right_up'],
                     "step": setting_data['control_speed_distance']['manual_mode']['step'],
                     "speed": setting_data['control_speed_distance']['manual_mode']['speed'],
+                    "man_softwarelimit": setting_data['control_speed_distance']['manual_mode']['man_softwarelimit'],
                     # "speed_y": self.static_speed_manual_y,
                 }
 

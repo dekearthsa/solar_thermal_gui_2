@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -35,7 +34,6 @@ class Forecasting(Screen):
 
     def stop_fetch_loop(self):
         pass
-
 
     def fetch_all_helio_cam(self):
         list_helio = []
@@ -71,8 +69,6 @@ class Forecasting(Screen):
     def gen_time_range(self, tz, start_dt: datetime, end_dt: datetime, step_min: int = 1):
         minutes = int((end_dt - start_dt).total_seconds() // 60)
         return [start_dt + timedelta(minutes=i) for i in range(0, minutes+1, step_min)]
-    
-
 
     def generate_data(self):
         current_time = datetime.now()
@@ -110,8 +106,6 @@ class Forecasting(Screen):
         DAY = self.ids.is_day_predict.text
         MONTH = self.ids.is_month_predict.text
         YEAR = self.ids.is_year_predict.text
-
-        
 
         if  DAY == "" and MONTH == "" and YEAR == "": 
             self.show_confirm(title="Missing input",message=f"Save missing input!")
@@ -172,9 +166,7 @@ class Forecasting(Screen):
 
             df_main['datetime'] = pd.to_datetime(df_main['string_date'], format='%d/%m/%y %H:%M:%S')
 
-
             df_main['timestamp'] = df_main['datetime'].astype('int64') // 1e9  # convert to seconds
-
 
             df_main['year'] = df_main['datetime'].dt.year
             df_main['month'] = df_main['datetime'].dt.month
@@ -238,7 +230,6 @@ class Forecasting(Screen):
                 instance.text = str(max_value)
             elif val < min_value:
                 instance.text = str(min_value)
-
 
     def show_confirm(self,title, message):
         popup_content = BoxLayout(orientation='vertical', padding=10, spacing=10)
